@@ -38,6 +38,7 @@ export default function LiveStreamPage() {
   const [selectedOutputDevice, setSelectedOutputDevice] = useState<string>('');
   const [audioDeviceLoading, setAudioDeviceLoading] = useState(false);
   const [showChat, setShowChat] = useState(true);
+  const [uploadUrl, setUploadUrl] = useState<string>('');
 
   useEffect(() => {
     loadCurrentStream();
@@ -139,6 +140,7 @@ export default function LiveStreamPage() {
           stream_url: null
         });
         setCurrentStreamId(stream.id);
+        setUploadUrl(stream.upload_url);
         setIsLive(true);
         setStreamStats({
           current_viewers: 0,
@@ -266,7 +268,7 @@ export default function LiveStreamPage() {
 
                   </div>
                   
-                  <StreamControls isLive={isLive} onToggleLive={handleToggleLive} loading={loading} currentStreamId={currentStreamId} onAudioLevelChange={setAudioLevel} selectedInputDevice={selectedInputDevice} selectedOutputDevice={selectedOutputDevice} shouldResumeAudio={!!currentStreamId} />
+                  <StreamControls isLive={isLive} onToggleLive={handleToggleLive} loading={loading} currentStreamId={currentStreamId} onAudioLevelChange={setAudioLevel} selectedInputDevice={selectedInputDevice} selectedOutputDevice={selectedOutputDevice} shouldResumeAudio={!!currentStreamId} uploadUrl={uploadUrl} />
                 </div>
 
                 <div className="bg-white shadow-sm rounded-lg p-6">

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getLivestreams, getCurrentLivestream, createLivestream, updateLivestream, endLivestream, getChatMessages, sendChatMessage, deleteChatMessage, updateViewerCount, getStreamHistory, getViewers, addViewer, removeViewer, banViewer, unbanViewer, getStreamStats, streamAudio, bulkViewerAction } from '../controllers/livestreamController.js';
+import { getLivestreams, getCurrentLivestream, createLivestream, updateLivestream, endLivestream, getChatMessages, sendChatMessage, deleteChatMessage, updateViewerCount, getStreamHistory, getViewers, addViewer, removeViewer, banViewer, unbanViewer, getStreamStats, streamAudio, bulkViewerAction, uploadChunk } from '../controllers/livestreamController.js';
 
 const router = express.Router();
 
@@ -79,5 +79,6 @@ router.post('/:id/viewers/:viewerId/ban', banViewer);
 router.post('/:id/viewers/:viewerId/unban', unbanViewer);
 router.get('/:id/stats', getStreamStats);
 router.post('/stream', streamAudio);
+router.post('/:id/upload-chunk', express.raw({ type: 'application/octet-stream', limit: '10mb' }), uploadChunk);
 
 export default router;

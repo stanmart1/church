@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLivestream } from '@/hooks/useLivestream';
 import { useAuth } from '@/context/AuthContext';
+import Hls from 'hls.js';
 
 interface LiveStreamPlayerProps {
   isLive: boolean;
@@ -17,6 +18,38 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const hlsRef = useRef<Hls | null>(null);
+
+  useEffect(() => {
+    if (isLive && streamId && audioRef.current) {
+      const streamUrl = `/uploads/streams/${streamId}/playlist.m3u8`;
+      const fullUrl = `${import.meta.env.VITE_API_URL?.replace('/api', '')}${streamUrl}`;
+      
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+          backBufferLength: 90
+        });
+        hls.loadSource(fullUrl);
+        hls.attachMedia(audioRef.current);
+        hlsRef.current = hls;
+
+        return () => {
+          hls.destroy();
+        };
+      } else if (audioRef.current.canPlayType('application/vnd.apple.mpegurl')) {
+        audioRef.current.src = fullUrl;
+      }
+    }
+  }, [isLive, streamId]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume / 100;
+    }
+  }, [volume, isMuted]);
 
   useEffect(() => {
     if (!streamId || !isLive) return;
@@ -47,7 +80,6 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
 
   const handlePlay = async () => {
     const newPlayingState = !isPlaying;
-    setIsPlaying(newPlayingState);
     
     if (newPlayingState && !hasJoined && streamId && user) {
       try {
@@ -59,25 +91,43 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
       } catch (error) {
         console.error('Error adding viewer:', error);
       }
-    } else if (!newPlayingState && hasJoined && streamId) {
-      try {
-        const viewerId = (window as any).currentViewerId;
-        if (viewerId) {
-          await fetch(`${import.meta.env.VITE_API_URL}/livestreams/${streamId}/viewers/${viewerId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-          });
-          setHasJoined(false);
-          delete (window as any).currentViewerId;
+    }
+    
+    setIsPlaying(newPlayingState);
+    
+    if (audioRef.current) {
+      if (newPlayingState) {
+        try {
+          await audioRef.current.play();
+        } catch (error) {
+          console.error('Error playing audio:', error);
+          setIsPlaying(false);
         }
-      } catch (error) {
-        console.error('Error removing viewer:', error);
+      } else {
+        audioRef.current.pause();
+        
+        if (hasJoined && streamId) {
+          try {
+            const viewerId = (window as any).currentViewerId;
+            if (viewerId) {
+              await fetch(`${import.meta.env.VITE_API_URL}/livestreams/${streamId}/viewers/${viewerId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+              });
+              setHasJoined(false);
+              delete (window as any).currentViewerId;
+            }
+          } catch (error) {
+            console.error('Error removing viewer:', error);
+          }
+        }
       }
     }
   };
 
   return (
     <div className="bg-white rounded-lg shadow">
+      <audio ref={audioRef} className="hidden" />
       <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-8 flex items-center justify-center relative">
         {isLive ? (
           <>

@@ -97,3 +97,10 @@ export const CACHE_DURATION = {
   LONG: 3600, // 1 hour
   DAY: 86400, // 24 hours
 };
+
+// HLS Streaming
+export const HLS_STREAM = {
+  SEGMENT_DURATION: 4, // seconds
+  MAX_SEGMENTS: 10, // keep last 10 segments
+  CLEANUP_DELAY: 60000, // 1 minute after stream ends
+};

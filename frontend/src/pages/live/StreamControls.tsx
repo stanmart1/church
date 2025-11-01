@@ -9,6 +9,7 @@ interface StreamControlsProps {
   selectedInputDevice?: string;
   selectedOutputDevice?: string;
   shouldResumeAudio?: boolean;
+  uploadUrl?: string;
 }
 
 function ShareStreamModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -55,9 +56,9 @@ function ShareStreamModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   );
 }
 
-export default function StreamControls({ isLive, onToggleLive, loading, onAudioLevelChange, selectedInputDevice, selectedOutputDevice, shouldResumeAudio }: StreamControlsProps) {
+export default function StreamControls({ isLive, onToggleLive, loading, onAudioLevelChange, selectedInputDevice, selectedOutputDevice, shouldResumeAudio, uploadUrl }: StreamControlsProps) {
   const [isMuted, setIsMuted] = useState(false);
-
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [inputGain, setInputGain] = useState(65);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -195,12 +196,40 @@ export default function StreamControls({ isLive, onToggleLive, loading, onAudioL
         
         setAudioContext(ctx);
         setGainNode(gain);
+
+        if (uploadUrl) {
+          const recorder = new MediaRecorder(dest.stream, {
+            mimeType: 'audio/webm;codecs=opus',
+            audioBitsPerSecond: 128000
+          });
+
+          recorder.ondataavailable = async (event) => {
+            if (event.data.size > 0) {
+              try {
+                await fetch(uploadUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/octet-stream' },
+                  body: event.data
+                });
+              } catch (error) {
+                console.error('Error uploading chunk:', error);
+              }
+            }
+          };
+
+          recorder.start(4000);
+          setMediaRecorder(recorder);
+        }
       } catch (error) {
         console.error('Error accessing microphone:', error);
         alert('Could not access microphone');
         return;
       }
     } else {
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+        setMediaRecorder(null);
+      }
       if (audioContext) {
         audioContext.close();
         setAudioContext(null);

@@ -1,6 +1,7 @@
 import pool from '../config/database.js';
 import { broadcastStreamStatusChange, broadcastStreamUpdate, broadcastViewersUpdate, broadcastViewerKicked } from '../websocket/livestreamWebSocket.js';
 import { sendLivestreamStartNotification } from '../services/notificationService.js';
+import hlsStreamService from '../services/hlsStreamService.js';
 
 export const getLivestreams = async (req, res) => {
   try {
@@ -40,6 +41,13 @@ export const createLivestream = async (req, res) => {
       [title, description || null, stream_url || null]
     );
 
+    const streamUrls = hlsStreamService.startStream(result.rows[0].id.toString());
+    
+    await pool.query(
+      'UPDATE livestreams SET stream_url = $1 WHERE id = $2',
+      [streamUrls.streamUrl, result.rows[0].id]
+    );
+
     console.log('Livestream created:', result.rows[0].id);
     broadcastStreamStatusChange();
     
@@ -47,7 +55,7 @@ export const createLivestream = async (req, res) => {
       console.error('Failed to send notifications:', err)
     );
     
-    res.status(201).json(result.rows[0]);
+    res.status(201).json({ ...result.rows[0], stream_url: streamUrls.streamUrl, upload_url: streamUrls.uploadUrl });
   } catch (error) {
     console.error('Create livestream error:', error.message);
     res.status(500).json({ error: error.message });
@@ -128,6 +136,8 @@ export const endLivestream = async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Livestream not found or already ended' });
     }
+
+    hlsStreamService.endStream(req.params.id);
 
     await pool.query(
       'UPDATE stream_viewers SET status = $1 WHERE livestream_id = $2 AND status = $3',
@@ -327,6 +337,19 @@ export const streamAudio = async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('Stream audio error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const uploadChunk = async (req, res) => {
+  try {
+    const streamId = req.params.id;
+    const audioBuffer = req.body;
+
+    await hlsStreamService.addChunk(streamId, audioBuffer);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Upload chunk error:', error.message);
     res.status(500).json({ error: error.message });
   }
 };
