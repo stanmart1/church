@@ -346,6 +346,10 @@ export const uploadChunk = async (req, res) => {
     const streamId = req.params.id;
     const audioBuffer = req.body;
 
+    if (!hlsStreamService.activeStreams.has(streamId)) {
+      hlsStreamService.startStream(streamId);
+    }
+
     await hlsStreamService.addChunk(streamId, audioBuffer);
     res.json({ success: true });
   } catch (error) {

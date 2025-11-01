@@ -139,8 +139,10 @@ export default function LiveStreamPage() {
           description: streamSettings.description,
           stream_url: null
         });
+        console.log('Stream created:', stream);
         setCurrentStreamId(stream.id);
-        setUploadUrl(stream.upload_url);
+        setUploadUrl(stream.upload_url || '');
+        console.log('Upload URL set to:', stream.upload_url);
         setIsLive(true);
         setStreamStats({
           current_viewers: 0,

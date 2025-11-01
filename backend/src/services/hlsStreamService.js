@@ -42,7 +42,7 @@ class HLSStreamService {
 
     return {
       streamUrl: `/uploads/streams/${streamId}/playlist.m3u8`,
-      uploadUrl: `/api/livestreams/${streamId}/upload-chunk`
+      uploadUrl: `/livestreams/${streamId}/upload-chunk`
     };
   }
 

@@ -198,6 +198,7 @@ export default function StreamControls({ isLive, onToggleLive, loading, onAudioL
         setGainNode(gain);
 
         if (uploadUrl) {
+          console.log('Starting MediaRecorder with uploadUrl:', uploadUrl);
           const recorder = new MediaRecorder(dest.stream, {
             mimeType: 'audio/webm;codecs=opus',
             audioBitsPerSecond: 128000
@@ -206,11 +207,15 @@ export default function StreamControls({ isLive, onToggleLive, loading, onAudioL
           recorder.ondataavailable = async (event) => {
             if (event.data.size > 0) {
               try {
-                await fetch(uploadUrl, {
+                const url = uploadUrl.startsWith('/api') 
+                  ? `http://localhost:5001${uploadUrl}` 
+                  : `http://localhost:5001/api${uploadUrl}`;
+                const response = await fetch(url, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/octet-stream' },
                   body: event.data
                 });
+                if (!response.ok) console.error('Upload failed:', response.status);
               } catch (error) {
                 console.error('Error uploading chunk:', error);
               }
@@ -219,6 +224,8 @@ export default function StreamControls({ isLive, onToggleLive, loading, onAudioL
 
           recorder.start(4000);
           setMediaRecorder(recorder);
+        } else {
+          console.error('No uploadUrl provided!');
         }
       } catch (error) {
         console.error('Error accessing microphone:', error);
