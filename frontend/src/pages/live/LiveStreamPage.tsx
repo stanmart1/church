@@ -43,6 +43,16 @@ export default function LiveStreamPage() {
     loadCurrentStream();
     loadStreamHistory(historyPage);
     loadAudioDevices();
+
+    const handleDeviceChange = () => {
+      loadAudioDevices();
+    };
+
+    navigator.mediaDevices.addEventListener('devicechange', handleDeviceChange);
+
+    return () => {
+      navigator.mediaDevices.removeEventListener('devicechange', handleDeviceChange);
+    };
   }, [historyPage]);
 
   const loadAudioDevices = async () => {
