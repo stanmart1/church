@@ -211,12 +211,17 @@ export default function StreamControls({ isLive, onToggleLive, loading, onAudioL
                 const url = uploadUrl.startsWith('/api') 
                   ? `${baseUrl}${uploadUrl}` 
                   : `${baseUrl}/api${uploadUrl}`;
+                console.log('Uploading to:', url, 'size:', event.data.size);
                 const response = await fetch(url, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/octet-stream' },
                   body: event.data
                 });
-                if (!response.ok) console.error('Upload failed:', response.status);
+                console.log('Response:', response.status);
+                if (!response.ok) {
+                  const text = await response.text();
+                  console.error('Upload failed:', response.status, text);
+                }
               } catch (error) {
                 console.error('Error uploading chunk:', error);
               }
