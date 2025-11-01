@@ -207,9 +207,10 @@ export default function StreamControls({ isLive, onToggleLive, loading, onAudioL
           recorder.ondataavailable = async (event) => {
             if (event.data.size > 0) {
               try {
+                const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
                 const url = uploadUrl.startsWith('/api') 
-                  ? `http://localhost:5001${uploadUrl}` 
-                  : `http://localhost:5001/api${uploadUrl}`;
+                  ? `${baseUrl}${uploadUrl}` 
+                  : `${baseUrl}/api${uploadUrl}`;
                 const response = await fetch(url, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/octet-stream' },
