@@ -3,7 +3,7 @@ import { useState } from 'react';
 interface SharePlaylistModalProps {
   isOpen: boolean;
   onClose: () => void;
-  playlistId: number;
+  playlistId: number | string;
 }
 
 export default function SharePlaylistModal({ isOpen, onClose, playlistId }: SharePlaylistModalProps) {

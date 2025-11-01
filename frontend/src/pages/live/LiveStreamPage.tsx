@@ -9,7 +9,7 @@ import LivestreamWebSocket from '@/services/LivestreamWebSocket';
 import LiveStreamChat from './LiveStreamChat';
 
 export default function LiveStreamPage() {
-  const { getCurrentLivestream, createLivestream, endLivestream, getStreamHistory, getStreamStats, updateLivestream } = useLivestream();
+  const { getCurrentLivestream, createLivestream, endLivestream, getStreamHistory, updateLivestream } = useLivestream();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLive, setIsLive] = useState(false);
   const [viewerCount, setViewerCount] = useState(0);

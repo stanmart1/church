@@ -40,56 +40,7 @@ export default function AnnouncementList({ filterStatus }: AnnouncementListProps
     return <div className="text-center py-12">Loading announcements...</div>;
   }
 
-const oldAnnouncements = [
-  {
-    id: 1,
-    title: 'Christmas Service Schedule',
-    content: 'Join us for special Christmas services. Christmas Eve service at 6 PM, Christmas Day service at 10 AM. Bring your family and friends to celebrate the birth of our Savior.',
-    author: 'Pastor John Smith',
-    publishDate: '2025-01-10',
-    expiryDate: '2025-12-26',
-    status: 'active',
-    priority: 'high',
-    views: 234,
-    category: 'Service Updates'
-  },
-  {
-    id: 2,
-    title: 'Youth Retreat Registration Open',
-    content: 'Registration is now open for the annual youth retreat. March 15-17, 2025. Early bird discount available until February 1st. Contact Sarah at youth@church.com for details.',
-    author: 'Sarah Johnson',
-    publishDate: '2025-01-08',
-    expiryDate: '2025-03-01',
-    status: 'active',
-    priority: 'medium',
-    views: 189,
-    category: 'Events'
-  },
-  {
-    id: 3,
-    title: 'New Bible Study Series Starting',
-    content: 'Starting January 24th, we will begin a new 8-week Bible study series on the Book of Romans. Wednesday evenings at 7 PM in the fellowship hall.',
-    author: 'Pastor David Wilson',
-    publishDate: '2025-01-05',
-    expiryDate: '2025-01-24',
-    status: 'scheduled',
-    priority: 'medium',
-    views: 156,
-    category: 'Bible Study'
-  },
-  {
-    id: 4,
-    title: 'Thanksgiving Service Reminder',
-    content: 'Don\'t forget our special Thanksgiving service this Thursday at 10 AM. We\'ll be sharing testimonies of gratitude and enjoying fellowship together.',
-    author: 'Admin',
-    publishDate: '2023-11-20',
-    expiryDate: '2023-11-23',
-    status: 'expired',
-    priority: 'high',
-    views: 423,
-    category: 'Service Updates'
-  }
-];
+
 
   const handleEdit = (id: string) => {
     setSelectedAnnouncement(id);
@@ -153,7 +104,7 @@ const oldAnnouncements = [
                   )}
                   <div className="flex items-center">
                     <i className="ri-calendar-line mr-1"></i>
-                    {new Date(announcement.publish_date).toLocaleDateString()}
+                    {new Date((announcement.publish_date || announcement.publishDate) || '').toLocaleDateString()}
                   </div>
                 </div>
 
@@ -191,10 +142,10 @@ const oldAnnouncements = [
                   </div>
                 </div>
 
-                {announcement.expiry_date && (
+                {(announcement.expiry_date || announcement.expiryDate) && (
                   <div className="mt-3 text-sm text-gray-500">
                     <i className="ri-time-line mr-1"></i>
-                    Expires on {new Date(announcement.expiry_date).toLocaleDateString()}
+                    Expires on {new Date((announcement.expiry_date || announcement.expiryDate) || '').toLocaleDateString()}
                   </div>
                 )}
               </div>

@@ -75,74 +75,6 @@ export default function FormsList({ filterStatus }: FormsListProps) {
     return <div className="text-center py-12">Loading forms...</div>;
   }
 
-const oldForms = [
-  {
-    id: 1,
-    title: 'Youth Retreat Registration',
-    description: 'Registration form for the annual youth retreat including accommodation preferences and dietary requirements.',
-    type: 'Event Registration',
-    status: 'active',
-    responses: 45,
-    createdDate: '2025-01-05',
-    lastModified: '2025-01-10',
-    author: 'Sarah Johnson',
-    isPublic: true,
-    deadline: '2025-03-01'
-  },
-  {
-    id: 2,
-    title: 'New Member Information',
-    description: 'Comprehensive form for new members to provide personal information, ministry interests, and spiritual background.',
-    type: 'Membership',
-    status: 'active',
-    responses: 23,
-    createdDate: '2025-01-01',
-    lastModified: '2025-01-08',
-    author: 'Pastor John Smith',
-    isPublic: true,
-    deadline: null
-  },
-  {
-    id: 3,
-    title: 'Service Feedback Survey',
-    description: 'Collect feedback from congregation about Sunday services, music, and overall worship experience.',
-    type: 'Survey',
-    status: 'active',
-    responses: 187,
-    createdDate: '2023-12-15',
-    lastModified: '2025-01-03',
-    author: 'Admin',
-    isPublic: true,
-    deadline: null
-  },
-  {
-    id: 4,
-    title: 'Volunteer Sign-up',
-    description: 'Sign up form for various volunteer opportunities within the church including ministry preferences and availability.',
-    type: 'Volunteer',
-    status: 'draft',
-    responses: 0,
-    createdDate: '2025-01-12',
-    lastModified: '2025-01-12',
-    author: 'Michael Brown',
-    isPublic: false,
-    deadline: null
-  },
-  {
-    id: 5,
-    title: 'Christmas Event Registration',
-    description: 'Registration for Christmas Eve service including preferred seating time and special accommodation needs.',
-    type: 'Event Registration',
-    status: 'closed',
-    responses: 312,
-    createdDate: '2023-11-01',
-    lastModified: '2023-12-20',
-    author: 'Pastor David Wilson',
-    isPublic: false,
-    deadline: '2023-12-20'
-  }
-];
-
   const handleViewForm = (id: string) => {
     setSelectedForm(id);
     setShowViewModal(true);
@@ -345,7 +277,7 @@ const oldForms = [
                   </div>
                   <div className="flex items-center">
                     <i className="ri-calendar-line mr-2"></i>
-                    Created {new Date(form.created_at).toLocaleDateString()}
+                    Created {new Date(form.created_at || '').toLocaleDateString()}
                   </div>
                   {form.deadline && (
                     <div className="flex items-center">

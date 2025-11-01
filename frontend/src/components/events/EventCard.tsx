@@ -1,14 +1,7 @@
+import { Event } from '@/types';
+
 interface EventCardProps {
-  event: {
-    id: number;
-    title: string;
-    date: string;
-    time: string;
-    location: string;
-    category: string;
-    attendees: number;
-    description: string;
-  };
+  event: Event;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   onManageAttendees: (id: number) => void;
@@ -31,9 +24,11 @@ export default function EventCard({ event, onEdit, onDelete, onManageAttendees }
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-2">
             <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
-            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryColor(event.category)}`}>
-              {event.category}
-            </span>
+            {(event.category || event.type) && (
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryColor(event.category || event.type || '')}`}>
+                {event.category || event.type}
+              </span>
+            )}
           </div>
           <p className="text-sm text-gray-600 mb-3">{event.description}</p>
         </div>
@@ -46,7 +41,7 @@ export default function EventCard({ event, onEdit, onDelete, onManageAttendees }
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <i className="ri-time-line mr-2"></i>
-          {event.time}
+          {event.time || event.start_time || event.startTime || 'TBD'}
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <i className="ri-map-pin-line mr-2"></i>
@@ -54,7 +49,7 @@ export default function EventCard({ event, onEdit, onDelete, onManageAttendees }
         </div>
         <div className="flex items-center text-sm text-gray-600">
           <i className="ri-group-line mr-2"></i>
-          {event.attendees} attendees
+          {event.attendees || event.registered_count || event.registeredCount || 0} attendees
         </div>
       </div>
       

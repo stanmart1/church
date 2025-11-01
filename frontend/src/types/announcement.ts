@@ -2,10 +2,14 @@ export interface Announcement {
   id: string;
   title: string;
   content: string;
-  priority: 'low' | 'medium' | 'high';
-  publishDate: string;
+  priority: string;
+  publishDate?: string;
+  publish_date?: string;
   expiryDate?: string;
-  status: 'draft' | 'published' | 'archived';
-  createdBy: string;
-  createdAt: string;
+  expiry_date?: string;
+  status: string;
+  createdBy?: string;
+  created_by_name?: string;
+  createdAt?: string;
+  created_at?: string;
 }

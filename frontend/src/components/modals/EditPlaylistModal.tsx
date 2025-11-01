@@ -5,7 +5,7 @@ import { useSermons } from '@/hooks/useSermons';
 interface EditPlaylistModalProps {
   isOpen: boolean;
   onClose: () => void;
-  playlistId: string;
+  playlistId: string | number;
   onSuccess?: () => void;
 }
 
@@ -18,7 +18,7 @@ export default function EditPlaylistModal({ isOpen, onClose, playlistId, onSucce
     name: '',
     description: '',
     isPublic: false,
-    selectedSermons: [] as string[]
+    selectedSermons: [] as (string | number)[]
   });
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function EditPlaylistModal({ isOpen, onClose, playlistId, onSucce
     }));
   };
 
-  const toggleSermon = (sermonId: string) => {
+  const toggleSermon = (sermonId: string | number) => {
     setFormData(prev => ({
       ...prev,
       selectedSermons: prev.selectedSermons.includes(sermonId)

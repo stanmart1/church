@@ -175,9 +175,11 @@ export default function MemberEvents() {
         <>
           <EventRegistrationModal
             isOpen={showRegistrationModal}
-            onClose={() => setShowRegistrationModal(false)}
+            onClose={() => {
+              setShowRegistrationModal(false);
+              handleRegister(selectedEvent.id);
+            }}
             eventTitle={selectedEvent.title}
-            onConfirm={() => handleRegister(selectedEvent.id)}
           />
           
           <EventDetailsModal

@@ -18,8 +18,8 @@ export default function EditAnnouncementModal({ isOpen, onClose, announcementId,
     content: announcement.content,
     priority: announcement.priority,
     status: announcement.status,
-    publishDate: announcement.publish_date ? announcement.publish_date.split('T')[0] : '',
-    expiryDate: announcement.expiry_date ? announcement.expiry_date.split('T')[0] : ''
+    publishDate: (announcement.publish_date || announcement.publishDate || '').split('T')[0],
+    expiryDate: (announcement.expiry_date || announcement.expiryDate || '').split('T')[0]
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,7 +111,7 @@ export default function EditAnnouncementModal({ isOpen, onClose, announcementId,
                 <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                 <select
                   value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="low">Low</option>
@@ -124,7 +124,7 @@ export default function EditAnnouncementModal({ isOpen, onClose, announcementId,
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="published">Published</option>

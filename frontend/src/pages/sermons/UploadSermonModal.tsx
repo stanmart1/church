@@ -57,7 +57,9 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
       if (formData.isPartOfSeries && formData.series) {
         data.append('series_id', formData.series);
       }
-      data.append('audio', formData.audioFile);
+      if (formData.audioFile) {
+        data.append('audio', formData.audioFile);
+      }
       if (formData.thumbnail) {
         data.append('thumbnail', formData.thumbnail);
       }

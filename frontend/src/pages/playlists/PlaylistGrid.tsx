@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import EditPlaylistModal from '@/components/modals/EditPlaylistModal';
 import SharePlaylistModal from '@/components/modals/SharePlaylistModal';
 import ConfirmDialog from '@/components/modals/ConfirmDialog';
@@ -14,14 +14,14 @@ interface PlaylistGridProps {
 
 export default function PlaylistGrid({ viewMode, onRefresh, onCreateClick }: PlaylistGridProps) {
   const { playlists, loading, deletePlaylist, getPlaylist } = usePlaylists();
-  const [playingPlaylist, setPlayingPlaylist] = useState<string | null>(null);
+  const [playingPlaylist, setPlayingPlaylist] = useState<string | number | null>(null);
   const [playlistSermons, setPlaylistSermons] = useState<Sermon[]>([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
+  const [selectedPlaylist, setSelectedPlaylist] = useState<string | number | null>(null);
 
-  const togglePlay = async (playlistId: string) => {
+  const togglePlay = async (playlistId: string | number) => {
     if (playingPlaylist === playlistId) {
       setPlayingPlaylist(null);
       setPlaylistSermons([]);
@@ -41,17 +41,17 @@ export default function PlaylistGrid({ viewMode, onRefresh, onCreateClick }: Pla
     }
   };
 
-  const handleEdit = (id: string) => {
+  const handleEdit = (id: string | number) => {
     setSelectedPlaylist(id);
     setShowEditModal(true);
   };
 
-  const handleShare = (id: string) => {
+  const handleShare = (id: string | number) => {
     setSelectedPlaylist(id);
     setShowShareModal(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: string | number) => {
     setSelectedPlaylist(id);
     setShowDeleteConfirm(true);
   };
@@ -112,7 +112,7 @@ export default function PlaylistGrid({ viewMode, onRefresh, onCreateClick }: Pla
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <span>{playlist.sermon_count || 0} sermons</span>
                       <span>{playlist.plays || 0} plays</span>
-                      <span>Updated {new Date(playlist.updated_at).toLocaleDateString()}</span>
+                      <span>Updated {new Date(playlist.updated_at || '').toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
@@ -178,7 +178,7 @@ export default function PlaylistGrid({ viewMode, onRefresh, onCreateClick }: Pla
             <p className="text-sm text-gray-600 mb-3">{playlist.description || 'No description'}</p>
             
             <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-              <span>Created {new Date(playlist.created_at).toLocaleDateString()}</span>
+              <span>Created {new Date(playlist.created_at || '').toLocaleDateString()}</span>
               <span>{playlist.plays || 0} plays</span>
             </div>
             

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLivestream } from '@/hooks/useLivestream';
 import { useAuth } from '@/context/AuthContext';
 
@@ -10,7 +10,7 @@ interface LiveStreamPlayerProps {
   streamId?: string;
 }
 
-export default function LiveStreamPlayer({ isLive, title, description, streamUrl, streamId }: LiveStreamPlayerProps) {
+export default function LiveStreamPlayer({ isLive, title, description, streamId }: LiveStreamPlayerProps) {
   const { addViewer } = useLivestream();
   const { user } = useAuth();
   const [volume, setVolume] = useState(70);

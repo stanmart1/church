@@ -59,18 +59,18 @@ export default function ViewAnnouncementModal({ isOpen, onClose, announcement }:
               )}
               <div className="flex items-center">
                 <i className="ri-calendar-line mr-1"></i>
-                {new Date(announcement.publish_date).toLocaleDateString()}
+                {new Date((announcement.publish_date || announcement.publishDate) || '').toLocaleDateString()}
               </div>
             </div>
             <div className="bg-gray-50 rounded-lg p-6">
               <h4 className="text-sm font-semibold text-gray-700 mb-3">Content</h4>
               <p className="text-gray-700 whitespace-pre-wrap">{announcement.content}</p>
             </div>
-            {announcement.expiry_date && (
+            {(announcement.expiry_date || announcement.expiryDate) && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <div className="flex items-center text-sm text-yellow-800">
                   <i className="ri-time-line mr-2"></i>
-                  Expires on {new Date(announcement.expiry_date).toLocaleDateString()}
+                  Expires on {new Date((announcement.expiry_date || announcement.expiryDate) || '').toLocaleDateString()}
                 </div>
               </div>
             )}

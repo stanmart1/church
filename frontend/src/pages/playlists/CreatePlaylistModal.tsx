@@ -18,7 +18,7 @@ export default function CreatePlaylistModal({ isOpen, onClose, onSuccess }: Crea
     name: '',
     description: '',
     isPublic: false,
-    selectedSermons: [] as number[]
+    selectedSermons: [] as (string | number)[]
   });
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function CreatePlaylistModal({ isOpen, onClose, onSuccess }: Crea
     }));
   };
 
-  const toggleSermon = (sermonId: number) => {
+  const toggleSermon = (sermonId: string | number) => {
     setFormData(prev => ({
       ...prev,
       selectedSermons: prev.selectedSermons.includes(sermonId)

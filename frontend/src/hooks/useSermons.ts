@@ -22,7 +22,7 @@ export const useSermons = () => {
     fetchSermons();
   }, []);
 
-  const getSermon = (id: string) =>
+  const getSermon = (id: string | number) =>
     api.get(`/sermons/${id}`);
 
   const createSermon = async (data: FormData) => {
@@ -31,21 +31,21 @@ export const useSermons = () => {
     return result;
   };
 
-  const updateSermon = async (id: string, data: any) => {
+  const updateSermon = async (id: string | number, data: any) => {
     const result = await api.put(`/sermons/${id}`, data);
     await fetchSermons();
     return result;
   };
 
-  const deleteSermon = async (id: string) => {
+  const deleteSermon = async (id: string | number) => {
     await api.delete(`/sermons/${id}`);
     await fetchSermons();
   };
 
-  const incrementPlays = (id: string) =>
+  const incrementPlays = (id: string | number) =>
     api.post(`/sermons/${id}/play`, {});
 
-  const incrementDownloads = (id: string) =>
+  const incrementDownloads = (id: string | number) =>
     api.post(`/sermons/${id}/download`, {});
 
   return { sermons, loading, fetchSermons, getSermon, createSermon, updateSermon, deleteSermon, incrementPlays, incrementDownloads };

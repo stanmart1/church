@@ -55,7 +55,7 @@ function ShareStreamModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   );
 }
 
-export default function StreamControls({ isLive, onToggleLive, loading, currentStreamId, onAudioLevelChange, selectedInputDevice, selectedOutputDevice, shouldResumeAudio }: StreamControlsProps) {
+export default function StreamControls({ isLive, onToggleLive, loading, onAudioLevelChange, selectedInputDevice, selectedOutputDevice, shouldResumeAudio }: StreamControlsProps) {
   const [isMuted, setIsMuted] = useState(false);
 
   const [inputGain, setInputGain] = useState(65);

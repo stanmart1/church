@@ -1,16 +1,27 @@
 export interface Event {
-  id: string;
+  id: number;
   title: string;
   description?: string;
   date: string;
-  startTime: string;
-  endTime: string;
+  endDate?: string;
+  start_time?: string;
+  startTime?: string;
+  time?: string;
+  end_time?: string;
+  endTime?: string;
   location: string;
-  type: 'worship' | 'retreat' | 'service' | 'seminar' | 'conference' | 'other';
+  type?: string;
+  category?: string;
   capacity?: number;
-  registeredCount: number;
-  status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
-  createdAt: string;
+  attendees?: number;
+  maxAttendees?: number;
+  registered_count?: number;
+  registeredCount?: number;
+  registrationDeadline?: string;
+  organizer?: string;
+  status?: string;
+  created_at?: string;
+  createdAt?: string;
 }
 
 export interface EventRegistration {

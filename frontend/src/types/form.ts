@@ -2,11 +2,14 @@ export interface Form {
   id: string;
   title: string;
   description?: string;
-  type: 'registration' | 'survey' | 'feedback' | 'application';
-  status: 'active' | 'inactive' | 'closed';
-  fields: FormField[];
+  type: string;
+  status: string;
+  fields?: FormField[];
   responses: number;
-  createdAt: string;
+  created_at?: string;
+  createdAt?: string;
+  is_public?: boolean;
+  deadline?: string | null;
 }
 
 export interface FormField {

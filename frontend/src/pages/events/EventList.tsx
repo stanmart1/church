@@ -7,7 +7,7 @@ export default function EventList() {
   const { getEvents } = useEvents();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
 
   useEffect(() => {
     fetchEvents();
@@ -39,80 +39,22 @@ export default function EventList() {
     );
   }
 
-const oldEvents = [
-  {
-    id: 1,
-    title: 'Youth Retreat 2025',
-    description: 'A spiritual retreat for young people to grow closer to God and each other through worship, teaching, and fellowship.',
-    date: '2025-03-15',
-    endDate: '2025-03-17',
-    time: '6:00 PM',
-    location: 'Mountain View Camp',
-    organizer: 'Sarah Johnson',
-    attendees: 45,
-    maxAttendees: 50,
-    status: 'confirmed',
-    category: 'Retreat',
-    registrationDeadline: '2025-03-01'
-  },
-  {
-    id: 2,
-    title: 'Community Outreach',
-    description: 'Join us as we serve our community by volunteering at the local food bank and sharing God\'s love.',
-    date: '2025-01-20',
-    time: '9:00 AM',
-    location: 'Downtown Food Bank',
-    organizer: 'Michael Brown',
-    attendees: 23,
-    maxAttendees: 30,
-    status: 'confirmed',
-    category: 'Outreach',
-    registrationDeadline: '2025-01-18'
-  },
-  {
-    id: 3,
-    title: 'Bible Study Workshop',
-    description: 'Learn effective Bible study methods and deepen your understanding of Scripture through interactive sessions.',
-    date: '2025-01-25',
-    time: '7:00 PM',
-    location: 'Fellowship Hall',
-    organizer: 'Pastor David Wilson',
-    attendees: 18,
-    maxAttendees: 25,
-    status: 'confirmed',
-    category: 'Education',
-    registrationDeadline: '2025-01-23'
-  },
-  {
-    id: 4,
-    title: 'Marriage Enrichment Seminar',
-    description: 'Strengthen your marriage with biblical principles and practical tools for building a lasting relationship.',
-    date: '2025-02-10',
-    time: '10:00 AM',
-    location: 'Main Sanctuary',
-    organizer: 'Pastor John Smith',
-    attendees: 12,
-    maxAttendees: 40,
-    status: 'planning',
-    category: 'Seminar',
-    registrationDeadline: '2025-02-05'
-  }
-];
+
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAttendeesModal, setShowAttendeesModal] = useState(false);
 
-  const handleViewDetails = (eventId: string) => {
+  const handleViewDetails = (eventId: number) => {
     setSelectedEvent(eventId);
     setShowDetailsModal(true);
   };
 
-  const handleEdit = (eventId: string) => {
+  const handleEdit = (eventId: number) => {
     setSelectedEvent(eventId);
     setShowEditModal(true);
   };
 
-  const handleManageAttendees = (eventId: string) => {
+  const handleManageAttendees = (eventId: number) => {
     setSelectedEvent(eventId);
     setShowAttendeesModal(true);
   };
@@ -145,10 +87,10 @@ const oldEvents = [
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-3 mb-3">
                   <h3 className="text-xl font-semibold text-gray-900">{event.title}</h3>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(event.status)}`}>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(event.status || '')}`}>
                     {event.status}
                   </span>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryColor(event.category)}`}>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryColor(event.category || '')}`}>
                     {event.category}
                   </span>
                 </div>
@@ -182,7 +124,7 @@ const oldEvents = [
                     </div>
                     <div className="flex items-center text-gray-600">
                       <i className="ri-calendar-check-line mr-2"></i>
-                      Registration deadline: {new Date(event.registrationDeadline).toLocaleDateString()}
+                      Registration deadline: {new Date(event.registrationDeadline || '').toLocaleDateString()}
                     </div>
                   </div>
                 </div>
@@ -195,7 +137,7 @@ const oldEvents = [
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-blue-600 h-2 rounded-full" 
-                      style={{ width: `${(event.attendees / event.maxAttendees) * 100}%` }}
+                      style={{ width: `${((event.attendees || 0) / (event.maxAttendees || 1)) * 100}%` }}
                     ></div>
                   </div>
                 </div>

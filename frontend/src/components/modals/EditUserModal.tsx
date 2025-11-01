@@ -4,7 +4,7 @@ import { useUsers } from '@/hooks/useUsers';
 interface EditUserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userId: number;
+  userId: string | number;
   onSuccess?: () => void;
 }
 

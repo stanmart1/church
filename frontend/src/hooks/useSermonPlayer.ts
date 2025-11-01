@@ -1,7 +1,7 @@
 import { api } from '@/services/api';
 
 export const useSermonPlayer = () => {
-  const incrementPlayCount = async (sermonId: string) => {
+  const incrementPlayCount = async (sermonId: string | number) => {
     try {
       await api.post(`/sermons/${sermonId}/play`, {});
     } catch (error) {
@@ -9,7 +9,7 @@ export const useSermonPlayer = () => {
     }
   };
 
-  const incrementDownloadCount = async (sermonId: string) => {
+  const incrementDownloadCount = async (sermonId: string | number) => {
     try {
       await api.post(`/sermons/${sermonId}/download`, {});
     } catch (error) {

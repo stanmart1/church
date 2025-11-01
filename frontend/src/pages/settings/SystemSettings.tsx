@@ -18,7 +18,7 @@ export default function SystemSettings() {
   const loadSettings = async () => {
     try {
       const data = await getSettings('system');
-      setSettings(prev => ({ ...prev, ...data }));
+      setSettings((prev: any) => ({ ...prev, ...data }));
     } catch (error) {
       console.error('Error loading settings:', error);
     }
@@ -36,7 +36,7 @@ export default function SystemSettings() {
   };
 
   const handleChange = (setting: string, value: string) => {
-    setSettings(prev => ({ ...prev, [setting]: value }));
+    setSettings((prev: any) => ({ ...prev, [setting]: value }));
   };
 
   const handleSave = async () => {

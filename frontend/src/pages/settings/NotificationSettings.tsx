@@ -16,7 +16,6 @@ export default function NotificationSettings() {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
-  const [activeSection, setActiveSection] = useState('general');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -50,24 +49,11 @@ export default function NotificationSettings() {
     }
   };
 
-  const handleToggle = (category: string, setting: string, subSetting?: string) => {
-    if (subSetting) {
-      setSettings(prev => ({
-        ...prev,
-        [category]: {
-          ...prev[category as keyof typeof prev],
-          [setting]: {
-            ...prev[category as keyof typeof prev][setting as keyof typeof prev[typeof category]],
-            [subSetting]: !prev[category as keyof typeof prev][setting as keyof typeof prev[typeof category]][subSetting as keyof typeof prev[typeof category][typeof setting]]
-          }
-        }
-      }));
-    } else {
-      setSettings(prev => ({
-        ...prev,
-        [setting]: !prev[setting as keyof typeof prev]
-      }));
-    }
+  const handleToggle = (setting: 'emailEnabled' | 'pushEnabled') => {
+    setSettings(prev => ({
+      ...prev,
+      [setting]: !prev[setting]
+    }));
   };
 
   const handleSave = async () => {
@@ -126,7 +112,7 @@ export default function NotificationSettings() {
                 <p className="text-sm text-gray-500">Send notifications via email</p>
               </div>
               <button
-                onClick={() => handleToggle('', 'emailEnabled')}
+                onClick={() => handleToggle('emailEnabled')}
                 className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
                   settings.emailEnabled ? 'bg-green-600' : 'bg-gray-200'
                 }`}
@@ -145,7 +131,7 @@ export default function NotificationSettings() {
                 <p className="text-sm text-gray-500">Browser push notifications</p>
               </div>
               <button
-                onClick={() => handleToggle('', 'pushEnabled')}
+                onClick={() => handleToggle('pushEnabled')}
                 className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
                   settings.pushEnabled ? 'bg-green-600' : 'bg-gray-200'
                 }`}

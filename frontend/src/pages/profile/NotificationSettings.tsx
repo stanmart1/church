@@ -48,13 +48,19 @@ export default function NotificationSettings() {
   if (!user) return null;
 
   const handleToggle = (category: string, setting: string) => {
-    setSettings(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category as keyof typeof prev],
-        [setting]: !prev[category as keyof typeof prev][setting as keyof typeof prev[typeof category]]
+    setSettings(prev => {
+      const categorySettings = prev[category as keyof typeof prev];
+      if (typeof categorySettings === 'object' && categorySettings !== null) {
+        return {
+          ...prev,
+          [category]: {
+            ...categorySettings,
+            [setting]: !(categorySettings as any)[setting]
+          }
+        };
       }
-    }));
+      return prev;
+    });
   };
 
   const handleSave = async () => {

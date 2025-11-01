@@ -52,13 +52,6 @@ export default function SecuritySettings() {
 
 
 
-  const handleToggle = (setting: string) => {
-    setSettings(prev => ({
-      ...prev,
-      [setting]: !prev[setting as keyof typeof prev]
-    }));
-  };
-
   const handleChange = (setting: string, value: string) => {
     setSettings(prev => ({ ...prev, [setting]: value }));
   };

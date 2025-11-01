@@ -20,9 +20,9 @@ export default function UserManagement() {
   const [editMode, setEditMode] = useState(false);
   const [editingPermissions, setEditingPermissions] = useState<string[]>([]);
   const [savingPermissions, setSavingPermissions] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<number | null>(null);
+  const [selectedUser, setSelectedUser] = useState<number | string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<{ id: number; name: string } | null>(null);
+  const [userToDelete, setUserToDelete] = useState<{ id: number | string; name: string } | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -270,11 +270,11 @@ export default function UserManagement() {
                       {user.phone || 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(user.created_at).toLocaleDateString()}
+                      {user.created_at ? new Date(user.created_at).toLocaleDateString() : user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.status === 'Active' 
+                        user.status?.toLowerCase() === 'active' 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-red-100 text-red-800'
                       }`}>

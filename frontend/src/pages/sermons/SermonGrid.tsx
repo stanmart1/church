@@ -21,7 +21,6 @@ export default function SermonGrid({
   searchTerm, 
   filterSeries, 
   filterSpeaker, 
-  filterDateRange, 
   sortBy, 
   viewMode 
 }: SermonGridProps) {
@@ -29,7 +28,7 @@ export default function SermonGrid({
   const [loading, setLoading] = useState(true);
   const [playingSermon, setPlayingSermon] = useState<Sermon | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [sermonToDelete, setSermonToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [sermonToDelete, setSermonToDelete] = useState<{ id: string | number; title: string } | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [sermonToEdit, setSermonToEdit] = useState<Sermon | null>(null);
 

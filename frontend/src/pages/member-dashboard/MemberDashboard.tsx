@@ -6,8 +6,7 @@ import { useLivestream } from '@/hooks/useLivestream';
 import { useNotifications } from '@/hooks/useNotifications';
 import { api } from '@/services/api';
 import AudioPlayer from '@/components/AudioPlayer';
-import AddPrayerRequestModal from '@/components/modals/AddPrayerRequestModal';
-import PrayerRequestDetailsModal from '@/components/modals/PrayerRequestDetailsModal';
+
 import LiveStreamPlayer from '@/components/livestream/LiveStreamPlayer';
 import LiveStreamInfo from '@/components/livestream/LiveStreamInfo';
 import LiveStreamChat from '@/pages/live/LiveStreamChat';
@@ -18,11 +17,11 @@ import MemberPrayer from './MemberPrayer';
 export default function MemberDashboard() {
   const { user } = useAuth();
   const { stats, recentSermons, upcomingEvents, loading } = useMemberDashboard(user?.id || '');
-  const { getCurrentLivestream, getStreamStats } = useLivestream();
+  const { getCurrentLivestream } = useLivestream();
   const { getRecentNotifications, getUnreadCount, markAsRead } = useNotifications();
   const [activeTab, setActiveTab] = useState('overview');
   const [currentStream, setCurrentStream] = useState<any>(null);
-  const [streamStats, setStreamStats] = useState<any>(null);
+
   const [loadingStream, setLoadingStream] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -88,11 +87,8 @@ export default function MemberDashboard() {
       const stream = await getCurrentLivestream();
       if (stream && stream.id) {
         setCurrentStream(stream);
-        const stats = await getStreamStats(stream.id);
-        setStreamStats(stats);
       } else {
         setCurrentStream(null);
-        setStreamStats(null);
       }
     } catch (error) {
       console.error('Error loading livestream:', error);
@@ -279,7 +275,7 @@ export default function MemberDashboard() {
                           </div>
                           <div className="ml-4">
                             <p className="text-sm font-medium text-blue-600">Total Downloaded Sermons</p>
-                            <p className="text-2xl font-bold text-blue-900">{stats.attendanceThisYear} Sermons</p>
+                            <p className="text-2xl font-bold text-blue-900">{stats.downloadedSermons} Sermons</p>
                           </div>
                         </div>
                       </div>

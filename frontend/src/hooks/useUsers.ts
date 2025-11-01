@@ -25,7 +25,7 @@ export const useUsers = () => {
   const getUserStats = () =>
     api.get('/users/stats');
 
-  const getUser = (id: number) =>
+  const getUser = (id: string | number) =>
     api.get(`/users/${id}`);
 
   const createUser = async (data: any) => {
@@ -34,18 +34,18 @@ export const useUsers = () => {
     return result;
   };
 
-  const updateUser = async (id: number, data: any) => {
+  const updateUser = async (id: string | number, data: any) => {
     const result = await api.put(`/users/${id}`, data);
     await fetchUsers();
     return result;
   };
 
-  const deleteUser = async (id: number) => {
+  const deleteUser = async (id: string | number) => {
     await api.delete(`/users/${id}`);
     await fetchUsers();
   };
 
-  const resetPassword = (id: number, password: string) =>
+  const resetPassword = (id: string | number, password: string) =>
     api.post(`/users/${id}/reset-password`, { password });
 
   return { users, loading, fetchUsers, getUserStats, getUser, createUser, updateUser, deleteUser, resetPassword };

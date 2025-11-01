@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '@/services/api';
 
-export const useMemberDashboard = (userId: string) => {
+export const useMemberDashboard = (userId: string | number) => {
   const [stats, setStats] = useState({
     downloadedSermons: 0,
     totalGiving: 0,

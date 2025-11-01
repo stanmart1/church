@@ -1,9 +1,10 @@
 export interface User {
-  id: string;
+  id: number | string;
   name: string;
   email: string;
-  role: 'admin' | 'pastor' | 'minister' | 'staff' | 'member';
+  role: string;
   phone?: string;
-  status: 'active' | 'inactive';
-  createdAt: string;
+  status: string;
+  created_at?: string;
+  createdAt?: string;
 }

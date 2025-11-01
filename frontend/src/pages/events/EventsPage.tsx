@@ -21,7 +21,7 @@ export default function EventsPage() {
   const [showManageAttendees, setShowManageAttendees] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
-  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
 
   useEffect(() => {
