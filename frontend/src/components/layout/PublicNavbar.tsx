@@ -17,8 +17,8 @@ export default function PublicNavbar() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               <Link to="/" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Home</Link>
+              <Link to="/services" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Services</Link>
               <Link to="/about" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">About</Link>
-              <a href="/#services" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Services</a>
               <Link to="/contact" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Contact</Link>
             </div>
           </div>
@@ -50,8 +50,8 @@ export default function PublicNavbar() {
               </button>
               <div className="mt-12 space-y-1">
                 <Link to="/" onClick={() => setIsMenuOpen(false)} className="block px-3 py-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg">Home</Link>
+                <Link to="/services" onClick={() => setIsMenuOpen(false)} className="block px-3 py-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg">Services</Link>
                 <Link to="/about" onClick={() => setIsMenuOpen(false)} className="block px-3 py-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg">About</Link>
-                <a href="/#services" onClick={() => setIsMenuOpen(false)} className="block px-3 py-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg">Services</a>
                 <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="block px-3 py-3 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg">Contact</Link>
                 <hr className="my-4" />
                 <div className="space-y-3">

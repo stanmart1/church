@@ -2,3 +2,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Rich text editor paragraph spacing */
+.prose p {
+  margin-bottom: 1rem;
+}
+.prose p:last-child {
+  margin-bottom: 0;
+}

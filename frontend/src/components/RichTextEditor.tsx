@@ -20,13 +20,15 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
   }), []);
 
   return (
-    <ReactQuill
-      theme="snow"
-      value={value}
-      onChange={onChange}
-      modules={modules}
-      placeholder={placeholder}
-      className="bg-white"
-    />
+    <div className="[&_.ql-editor_p]:mb-4 [&_.ql-editor_p:last-child]:mb-0">
+      <ReactQuill
+        theme="snow"
+        value={value}
+        onChange={onChange}
+        modules={modules}
+        placeholder={placeholder}
+        className="bg-white"
+      />
+    </div>
   );
 }

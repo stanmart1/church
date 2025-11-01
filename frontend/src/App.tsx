@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import LandingPage from './pages/landing/LandingPage'
 import LoginPage from './pages/auth/LoginPage'
 import SignupPage from './pages/auth/SignupPage'
@@ -22,6 +23,7 @@ const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'))
 const PublicFormPage = lazy(() => import('./pages/forms/PublicFormPage'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const AboutPage = lazy(() => import('./pages/public/AboutPage'))
+const ServicesPage = lazy(() => import('./pages/public/ServicesPage'))
 const ContactPage = lazy(() => import('./pages/public/ContactPage'))
 
 const LoadingFallback = () => (
@@ -32,11 +34,13 @@ const LoadingFallback = () => (
 
 function App() {
   return (
-    <BrowserRouter>
-      <Suspense fallback={<LoadingFallback />}>
-        <Routes>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/landing" element={<Navigate to="/" replace />} />
+        <Route path="/services" element={<ServicesPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/forms/:id" element={<PublicFormPage />} />
@@ -57,9 +61,10 @@ function App() {
         <Route path="/settings" element={<ProtectedRoute allowedRoles={['admin']}><SettingsPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 
