@@ -25,7 +25,7 @@ export const validateRegister = [
 
 // User validations
 export const validateUserId = [
-  param('userId').isInt().withMessage('Valid user ID required'),
+  param('userId').notEmpty().withMessage('Valid user ID required'),
   validate
 ];
 
