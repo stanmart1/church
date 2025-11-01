@@ -56,30 +56,28 @@ export default function MemberDashboard() {
   }, [user?.id]);
 
   useEffect(() => {
-    if (activeTab === 'livestream') {
-      loadLivestream();
-      
-      const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:5001';
-      const ws = new WebSocket(wsUrl);
-      
-      ws.onopen = () => {
-        ws.send(JSON.stringify({ type: 'subscribe-stream-status' }));
-      };
-      
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === 'stream-status-change' || data.type === 'stream-update') {
-            loadLivestream();
-          }
-        } catch (error) {
-          console.error('Error parsing message:', error);
+    loadLivestream();
+    
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:5001';
+    const ws = new WebSocket(wsUrl);
+    
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: 'subscribe-stream-status' }));
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'stream-status-change' || data.type === 'stream-update') {
+          loadLivestream();
         }
-      };
-      
-      return () => ws.close();
-    }
-  }, [activeTab]);
+      } catch (error) {
+        console.error('Error parsing message:', error);
+      }
+    };
+    
+    return () => ws.close();
+  }, []);
 
   const loadLivestream = async () => {
     setLoadingStream(true);
