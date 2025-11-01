@@ -1,7 +1,7 @@
 import pool from '../config/database.js';
 import { broadcastStreamStatusChange, broadcastStreamUpdate, broadcastViewersUpdate, broadcastViewerKicked } from '../websocket/livestreamWebSocket.js';
 import { sendLivestreamStartNotification } from '../services/notificationService.js';
-import hlsStreamService from '../services/hlsStreamService.js';
+import icecastService from '../services/icecastService.js';
 
 export const getLivestreams = async (req, res) => {
   try {
@@ -34,18 +34,18 @@ export const getCurrentLivestream = async (req, res) => {
 export const createLivestream = async (req, res) => {
   try {
     console.log('Creating livestream:', req.body.title);
-    const { title, description, stream_url } = req.body;
+    const { title, description } = req.body;
 
     const result = await pool.query(
       'INSERT INTO livestreams (title, description, stream_url, is_live, start_time) VALUES ($1, $2, $3, true, CURRENT_TIMESTAMP) RETURNING *',
-      [title, description || null, stream_url || null]
+      [title, description || null, null]
     );
 
-    const streamUrls = hlsStreamService.startStream(result.rows[0].id.toString());
-    
+    const streamUrl = icecastService.getStreamUrl();
+
     await pool.query(
       'UPDATE livestreams SET stream_url = $1 WHERE id = $2',
-      [streamUrls.streamUrl, result.rows[0].id]
+      [streamUrl, result.rows[0].id]
     );
 
     console.log('Livestream created:', result.rows[0].id);
@@ -55,7 +55,7 @@ export const createLivestream = async (req, res) => {
       console.error('Failed to send notifications:', err)
     );
     
-    res.status(201).json({ ...result.rows[0], stream_url: streamUrls.streamUrl, upload_url: streamUrls.uploadUrl });
+    res.status(201).json({ ...result.rows[0], stream_url: streamUrl });
   } catch (error) {
     console.error('Create livestream error:', error.message);
     res.status(500).json({ error: error.message });
@@ -136,8 +136,6 @@ export const endLivestream = async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Livestream not found or already ended' });
     }
-
-    hlsStreamService.endStream(req.params.id);
 
     await pool.query(
       'UPDATE stream_viewers SET status = $1 WHERE livestream_id = $2 AND status = $3',
@@ -341,22 +339,7 @@ export const streamAudio = async (req, res) => {
   }
 };
 
-export const uploadChunk = async (req, res) => {
-  try {
-    const streamId = req.params.id;
-    const audioBuffer = req.body;
 
-    if (!hlsStreamService.activeStreams.has(streamId)) {
-      hlsStreamService.startStream(streamId);
-    }
-
-    await hlsStreamService.addChunk(streamId, audioBuffer);
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Upload chunk error:', error.message);
-    res.status(500).json({ error: error.message });
-  }
-};
 
 export const bulkViewerAction = async (req, res) => {
   try {

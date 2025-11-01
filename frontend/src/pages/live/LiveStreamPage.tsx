@@ -38,7 +38,6 @@ export default function LiveStreamPage() {
   const [selectedOutputDevice, setSelectedOutputDevice] = useState<string>('');
   const [audioDeviceLoading, setAudioDeviceLoading] = useState(false);
   const [showChat, setShowChat] = useState(true);
-  const [uploadUrl, setUploadUrl] = useState<string>('');
 
   useEffect(() => {
     loadCurrentStream();
@@ -131,18 +130,15 @@ export default function LiveStreamPage() {
 
 
   const handleToggleLive = async (live: boolean) => {
-    setLoading(true);
-    try {
-      if (live) {
+    if (live) {
+      setLoading(true);
+      try {
         const stream = await createLivestream({
           title: streamSettings.title,
           description: streamSettings.description,
           stream_url: null
         });
-        console.log('Stream created:', stream);
         setCurrentStreamId(stream.id);
-        setUploadUrl(stream.upload_url || '');
-        console.log('Upload URL set to:', stream.upload_url);
         setIsLive(true);
         setStreamStats({
           current_viewers: 0,
@@ -150,8 +146,13 @@ export default function LiveStreamPage() {
           duration: 0,
           chat_messages: 0
         });
-      } else {
-        if (currentStreamId) {
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      if (currentStreamId) {
+        setLoading(true);
+        try {
           LivestreamWebSocket.disconnect();
           await endLivestream(currentStreamId);
           setCurrentStreamId(null);
@@ -164,10 +165,10 @@ export default function LiveStreamPage() {
             chat_messages: 0
           });
           await loadStreamHistory(1);
+        } finally {
+          setLoading(false);
         }
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -270,7 +271,7 @@ export default function LiveStreamPage() {
 
                   </div>
                   
-                  <StreamControls isLive={isLive} onToggleLive={handleToggleLive} loading={loading} currentStreamId={currentStreamId} onAudioLevelChange={setAudioLevel} selectedInputDevice={selectedInputDevice} selectedOutputDevice={selectedOutputDevice} shouldResumeAudio={!!currentStreamId} uploadUrl={uploadUrl} />
+                  <StreamControls isLive={isLive} onToggleLive={handleToggleLive} loading={loading} currentStreamId={currentStreamId} onAudioLevelChange={setAudioLevel} selectedInputDevice={selectedInputDevice} selectedOutputDevice={selectedOutputDevice} shouldResumeAudio={!!currentStreamId} />
                 </div>
 
                 <div className="bg-white shadow-sm rounded-lg p-6">
