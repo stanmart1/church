@@ -38,7 +38,7 @@ const PORT = process.env.PORT;
 app.use(compression());
 app.use(securityHeaders);
 app.use(cors({ 
-  origin: process.env.FRONTEND_URL || '',
+  origin: [process.env.FRONTEND_URL, 'http://192.168.0.100:5173', 'http://192.168.0.101:5173'].filter(Boolean),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -82,7 +82,7 @@ initWebSocket(httpServer);
 
 export { broadcastStreamStatusChange };
 
-httpServer.listen(PORT, async () => {
+httpServer.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server running on port ${PORT}`);
   console.log('WebSocket server ready');
   try {
