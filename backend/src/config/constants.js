@@ -37,12 +37,31 @@ export const AUDIT_ACTIONS = {
 // File Upload
 export const UPLOAD = {
   MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
+  MAX_AUDIO_SIZE: 500 * 1024 * 1024, // 500MB
+  MAX_VIDEO_SIZE: 1024 * 1024 * 1024, // 1GB
   ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
+  ALLOWED_AUDIO_TYPES: ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/x-m4a'],
+  ALLOWED_VIDEO_TYPES: ['video/mp4', 'video/webm', 'video/quicktime'],
   ALLOWED_DOCUMENT_TYPES: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
   IMAGE_MAX_WIDTH: 1920,
   IMAGE_MAX_HEIGHT: 1080,
   THUMBNAIL_WIDTH: 400,
   THUMBNAIL_HEIGHT: 300,
+};
+
+// File Extension Mapping
+export const MIME_TO_EXT = {
+  'audio/mpeg': ['.mp3', '.mpeg'],
+  'audio/mp3': ['.mp3'],
+  'audio/wav': ['.wav'],
+  'audio/ogg': ['.ogg'],
+  'audio/x-m4a': ['.m4a'],
+  'image/jpeg': ['.jpg', '.jpeg'],
+  'image/png': ['.png'],
+  'image/webp': ['.webp'],
+  'video/mp4': ['.mp4'],
+  'video/webm': ['.webm'],
+  'video/quicktime': ['.mov']
 };
 
 // WebSocket Events

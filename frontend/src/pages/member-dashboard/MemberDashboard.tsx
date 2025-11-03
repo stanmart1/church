@@ -1,18 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useMemberDashboard } from '@/hooks/useMemberDashboard';
 import { useLivestream } from '@/hooks/useLivestream';
 import { useNotifications } from '@/hooks/useNotifications';
 import { api } from '@/services/api';
-import AudioPlayer from '@/components/AudioPlayer';
 
-import LiveStreamPlayer from '@/components/livestream/LiveStreamPlayer';
-import LiveStreamInfo from '@/components/livestream/LiveStreamInfo';
-import LiveStreamChat from '@/pages/live/LiveStreamChat';
-import MemberEvents from './MemberEvents';
-import MemberGiving from './MemberGiving';
-import MemberPrayer from './MemberPrayer';
+const AudioPlayer = lazy(() => import('@/components/AudioPlayer'));
+const LiveStreamPlayer = lazy(() => import('@/components/livestream/LiveStreamPlayer'));
+const LiveStreamInfo = lazy(() => import('@/components/livestream/LiveStreamInfo'));
+const LiveStreamChat = lazy(() => import('@/pages/live/LiveStreamChat'));
+const MemberEvents = lazy(() => import('./MemberEvents'));
+const MemberGiving = lazy(() => import('./MemberGiving'));
+const MemberPrayer = lazy(() => import('./MemberPrayer'));
+
+const LoadingSpinner = () => <div className="animate-pulse bg-gray-200 h-48 rounded-lg"></div>;
 
 export default function MemberDashboard() {
   const { user } = useAuth();
@@ -361,23 +363,25 @@ export default function MemberDashboard() {
                 {loadingStream ? (
                   <div className="text-center py-12">Loading stream...</div>
                 ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                    <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-                      <LiveStreamPlayer 
-                        isLive={currentStream?.is_live || false} 
-                        title={currentStream?.title}
-                        description={currentStream?.description}
-                        streamUrl={currentStream?.stream_url}
-                        streamId={currentStream?.id}
-                      />
-                      <LiveStreamInfo 
-                        isLive={currentStream?.is_live || false} 
-                      />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                      <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+                        <LiveStreamPlayer 
+                          isLive={currentStream?.is_live || false} 
+                          title={currentStream?.title}
+                          description={currentStream?.description}
+                          streamUrl={currentStream?.stream_url}
+                          streamId={currentStream?.id}
+                        />
+                        <LiveStreamInfo 
+                          isLive={currentStream?.is_live || false} 
+                        />
+                      </div>
+                      <div>
+                        <LiveStreamChat streamId={currentStream?.id} isLive={currentStream?.is_live || false} showDeleteButton={false} />
+                      </div>
                     </div>
-                    <div>
-                      <LiveStreamChat streamId={currentStream?.id} isLive={currentStream?.is_live || false} showDeleteButton={false} />
-                    </div>
-                  </div>
+                  </Suspense>
                 )}
               </div>
             )}
@@ -460,19 +464,35 @@ export default function MemberDashboard() {
               </div>
             )}
 
-            {activeTab === 'events' && <MemberEvents />}
+            {activeTab === 'events' && (
+              <Suspense fallback={<LoadingSpinner />}>
+                <MemberEvents />
+              </Suspense>
+            )}
 
-            {activeTab === 'giving' && <MemberGiving />}
+            {activeTab === 'giving' && (
+              <Suspense fallback={<LoadingSpinner />}>
+                <MemberGiving />
+              </Suspense>
+            )}
 
-            {activeTab === 'prayer' && <MemberPrayer />}
+            {activeTab === 'prayer' && (
+              <Suspense fallback={<LoadingSpinner />}>
+                <MemberPrayer />
+              </Suspense>
+            )}
           </div>
         </div>
       </div>
 
-      <AudioPlayer 
-        sermon={currentSermon} 
-        onClose={() => setCurrentSermon(null)} 
-      />
+      {currentSermon && (
+        <Suspense fallback={null}>
+          <AudioPlayer 
+            sermon={currentSermon} 
+            onClose={() => setCurrentSermon(null)} 
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

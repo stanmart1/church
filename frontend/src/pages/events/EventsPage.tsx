@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useEvents } from '@/hooks/useEvents';
 import { Event } from '@/types';
 import Sidebar from '@/components/layout/Sidebar';
 import DashboardHeader from '@/components/layout/DashboardHeader';
-import EventCalendar from './EventCalendar';
-import EventList from './EventList';
-import CreateEventModal from './CreateEventModal';
 import EventCard from '@/components/events/EventCard';
-import EditEventModal from '@/components/modals/EditEventModal';
-import ManageAttendeesModal from '@/components/modals/ManageAttendeesModal';
-import ConfirmDialog from '@/components/modals/ConfirmDialog';
+
+const EventCalendar = lazy(() => import('./EventCalendar'));
+const EventList = lazy(() => import('./EventList'));
+const CreateEventModal = lazy(() => import('./CreateEventModal'));
+const EditEventModal = lazy(() => import('@/components/modals/EditEventModal'));
+const ManageAttendeesModal = lazy(() => import('@/components/modals/ManageAttendeesModal'));
+const ConfirmDialog = lazy(() => import('@/components/modals/ConfirmDialog'));
+
+const LoadingSpinner = () => <div className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>;
 
 export default function EventsPage() {
   const { getEvents, deleteEvent } = useEvents();
@@ -131,17 +134,23 @@ export default function EventsPage() {
               </div>
               
               <div>
-                {viewMode === 'calendar' ? <EventCalendar /> : <EventList />}
+                <Suspense fallback={<LoadingSpinner />}>
+                  {viewMode === 'calendar' ? <EventCalendar /> : <EventList />}
+                </Suspense>
               </div>
             </div>
           </div>
         </main>
       </div>
 
-      <CreateEventModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} onSuccess={fetchEvents} />
+      {showCreateModal && (
+        <Suspense fallback={null}>
+          <CreateEventModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} onSuccess={fetchEvents} />
+        </Suspense>
+      )}
       
       {selectedEvent && (
-        <>
+        <Suspense fallback={null}>
           <EditEventModal
             isOpen={showEditModal}
             onClose={() => setShowEditModal(false)}
@@ -152,18 +161,22 @@ export default function EventsPage() {
             onClose={() => setShowManageAttendees(false)}
             eventId={selectedEvent}
           />
-        </>
+        </Suspense>
       )}
       
-      <ConfirmDialog
-        isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={handleDelete}
-        title="Delete Event"
-        message="Are you sure you want to delete this event? This action cannot be undone."
-        confirmText="Delete"
-        type="danger"
-      />
+      {showDeleteConfirm && (
+        <Suspense fallback={null}>
+          <ConfirmDialog
+            isOpen={showDeleteConfirm}
+            onClose={() => setShowDeleteConfirm(false)}
+            onConfirm={handleDelete}
+            title="Delete Event"
+            message="Are you sure you want to delete this event? This action cannot be undone."
+            confirmText="Delete"
+            type="danger"
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

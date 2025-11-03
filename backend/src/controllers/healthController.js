@@ -1,20 +1,26 @@
-import pool from '../config/database.js';
+import { healthCheck as dbHealthCheck } from '../config/database.js';
 
 export const healthCheck = async (req, res) => {
-  try {
-    const result = await pool.query('SELECT NOW()');
+  const dbHealth = await dbHealthCheck();
+  
+  if (dbHealth.healthy) {
     res.json({
       status: 'ok',
       message: 'Church API is running',
       database: 'connected',
-      timestamp: result.rows[0].now
+      timestamp: dbHealth.timestamp,
+      pool: {
+        total: dbHealth.poolSize,
+        idle: dbHealth.idleConnections,
+        waiting: dbHealth.waitingClients
+      }
     });
-  } catch (error) {
+  } else {
     res.status(503).json({
       status: 'error',
       message: 'Church API is running',
       database: 'disconnected',
-      error: error.message
+      error: dbHealth.error
     });
   }
 };

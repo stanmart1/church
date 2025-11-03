@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import DashboardHeader from '@/components/layout/DashboardHeader';
-import StreamControls from './StreamControls';
-import ViewersList from './ViewersList';
-import StreamStats from './StreamStats';
 import { useLivestream } from '@/hooks/useLivestream';
 import LivestreamWebSocket from '@/services/LivestreamWebSocket';
-import LiveStreamChat from './LiveStreamChat';
+
+const StreamControls = lazy(() => import('./StreamControls'));
+const ViewersList = lazy(() => import('./ViewersList'));
+const StreamStats = lazy(() => import('./StreamStats'));
+const LiveStreamChat = lazy(() => import('./LiveStreamChat'));
+
+const LoadingSpinner = () => <div className="animate-pulse bg-gray-200 h-32 rounded-lg"></div>;
 
 export default function LiveStreamPage() {
   const { getCurrentLivestream, createLivestream, endLivestream, getStreamHistory, updateLivestream } = useLivestream();
@@ -188,7 +191,9 @@ export default function LiveStreamPage() {
               </p>
             </div>
 
-            <StreamStats isLive={isLive} stats={streamStats} />
+            <Suspense fallback={<LoadingSpinner />}>
+              <StreamStats isLive={isLive} stats={streamStats} />
+            </Suspense>
 
             <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
@@ -271,7 +276,9 @@ export default function LiveStreamPage() {
 
                   </div>
                   
-                  <StreamControls isLive={isLive} onToggleLive={handleToggleLive} loading={loading} currentStreamId={currentStreamId} onAudioLevelChange={setAudioLevel} selectedInputDevice={selectedInputDevice} selectedOutputDevice={selectedOutputDevice} shouldResumeAudio={!!currentStreamId} />
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <StreamControls isLive={isLive} onToggleLive={handleToggleLive} loading={loading} currentStreamId={currentStreamId} onAudioLevelChange={setAudioLevel} selectedInputDevice={selectedInputDevice} selectedOutputDevice={selectedOutputDevice} shouldResumeAudio={!!currentStreamId} />
+                  </Suspense>
                 </div>
 
                 <div className="bg-white shadow-sm rounded-lg p-6">
@@ -376,8 +383,10 @@ export default function LiveStreamPage() {
               </div>
               
               <div className="lg:col-span-1 space-y-6">
-                {showChat && <LiveStreamChat streamId={currentStreamId} isLive={isLive} showDeleteButton={true} />}
-                <ViewersList streamId={currentStreamId} onToggleChat={() => setShowChat(!showChat)} showChat={showChat} />
+                <Suspense fallback={<LoadingSpinner />}>
+                  {showChat && <LiveStreamChat streamId={currentStreamId} isLive={isLive} showDeleteButton={true} />}
+                  <ViewersList streamId={currentStreamId} onToggleChat={() => setShowChat(!showChat)} showChat={showChat} />
+                </Suspense>
               </div>
             </div>
 

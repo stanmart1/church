@@ -4,8 +4,39 @@ import { setupNotificationWebSocket } from './notificationWebSocket.js';
 
 let wss = null;
 const streamSubscriptions = new Map();
-
 const streamStatusSubscribers = new Set();
+
+const MAX_CONNECTIONS_PER_STREAM = 1000;
+const CONNECTION_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+const CLEANUP_INTERVAL = 60000; // 1 minute
+
+const cleanupStaleConnections = () => {
+  const now = Date.now();
+  let cleanedCount = 0;
+  
+  for (const [streamId, clients] of streamSubscriptions.entries()) {
+    for (const client of clients) {
+      if (client.readyState !== 1 || (client.lastActivity && (now - client.lastActivity) > CONNECTION_TIMEOUT)) {
+        clients.delete(client);
+        cleanedCount++;
+      }
+    }
+    if (clients.size === 0) {
+      streamSubscriptions.delete(streamId);
+    }
+  }
+  
+  for (const client of streamStatusSubscribers) {
+    if (client.readyState !== 1) {
+      streamStatusSubscribers.delete(client);
+      cleanedCount++;
+    }
+  }
+  
+  if (cleanedCount > 0) {
+    console.log(`Cleaned up ${cleanedCount} stale WebSocket connections`);
+  }
+};
 
 export const initWebSocket = (server) => {
   wss = new WebSocketServer({ server });
@@ -13,13 +44,16 @@ export const initWebSocket = (server) => {
 
   wss.on('connection', (ws) => {
     ws.isAlive = true;
+    ws.lastActivity = Date.now();
     
     ws.on('pong', () => {
       ws.isAlive = true;
+      ws.lastActivity = Date.now();
     });
 
     ws.on('message', async (message) => {
       try {
+        ws.lastActivity = Date.now();
         const data = JSON.parse(message);
 
         if (data.type === 'ping') {
@@ -32,12 +66,18 @@ export const initWebSocket = (server) => {
         }
 
         if (data.type === 'subscribe' && data.streamId) {
-          ws.streamId = data.streamId;
-          
           if (!streamSubscriptions.has(data.streamId)) {
             streamSubscriptions.set(data.streamId, new Set());
           }
-          streamSubscriptions.get(data.streamId).add(ws);
+          
+          const clients = streamSubscriptions.get(data.streamId);
+          if (clients.size >= MAX_CONNECTIONS_PER_STREAM) {
+            ws.send(JSON.stringify({ type: 'error', message: 'Stream capacity reached' }));
+            return;
+          }
+          
+          ws.streamId = data.streamId;
+          clients.add(ws);
           
           const stats = await getStreamStats(data.streamId);
           if (ws.readyState === 1) {
@@ -91,12 +131,22 @@ export const initWebSocket = (server) => {
 
   startStatsBroadcast();
   startHeartbeat();
+  startCleanupSchedule();
+};
+
+const startCleanupSchedule = () => {
+  setInterval(cleanupStaleConnections, CLEANUP_INTERVAL);
+  console.log('WebSocket cleanup scheduled (every 1 minute)');
 };
 
 const startHeartbeat = () => {
   setInterval(() => {
     wss.clients.forEach((ws) => {
       if (ws.isAlive === false) {
+        if (ws.streamId && streamSubscriptions.has(ws.streamId)) {
+          streamSubscriptions.get(ws.streamId).delete(ws);
+        }
+        streamStatusSubscribers.delete(ws);
         return ws.terminate();
       }
       ws.isAlive = false;
@@ -105,56 +155,48 @@ const startHeartbeat = () => {
   }, 30000);
 };
 
-const getStreamStats = async (streamId, retries = 3) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const stream = await pool.query('SELECT * FROM livestreams WHERE id = $1', [streamId]);
-      if (stream.rows.length === 0 || !stream.rows[0].is_live) return null;
+const getStreamStats = async (streamId) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        l.is_live,
+        COALESCE(COUNT(DISTINCT sv.id) FILTER (WHERE sv.status = 'active'), 0) as current_viewers,
+        COALESCE(l.viewers, 0) as peak_viewers,
+        COALESCE(COUNT(DISTINCT cm.id), 0) as chat_messages,
+        CASE 
+          WHEN l.is_live AND l.start_time IS NOT NULL 
+          THEN EXTRACT(EPOCH FROM (NOW() - l.start_time))::INTEGER 
+          ELSE 0 
+        END as duration
+      FROM livestreams l
+      LEFT JOIN stream_viewers sv ON sv.livestream_id = l.id
+      LEFT JOIN chat_messages cm ON cm.livestream_id = l.id
+      WHERE l.id = $1
+      GROUP BY l.id, l.is_live, l.start_time, l.viewers
+    `, [streamId]);
 
-      const viewers = await pool.query(
-        'SELECT COUNT(*) as current_viewers FROM stream_viewers WHERE livestream_id = $1 AND status = $2',
-        [streamId, 'active']
-      );
+    if (result.rows.length === 0 || !result.rows[0].is_live) return null;
 
-      const peakViewers = await pool.query(
-        'SELECT MAX(viewers) as peak_viewers FROM livestreams WHERE DATE(start_time) = CURRENT_DATE'
-      );
-
-      const chatCount = await pool.query(
-        'SELECT COUNT(*) as chat_messages FROM chat_messages WHERE livestream_id = $1',
-        [streamId]
-      );
-
-      let duration = 0;
-      if (stream.rows[0].is_live && stream.rows[0].start_time) {
-        const durationResult = await pool.query(
-          'SELECT EXTRACT(EPOCH FROM (NOW() - start_time))::INTEGER as duration FROM livestreams WHERE id = $1',
-          [streamId]
-        );
-        duration = durationResult.rows[0]?.duration || 0;
-      }
-
-      return {
-        current_viewers: parseInt(viewers.rows[0].current_viewers),
-        peak_viewers: parseInt(peakViewers.rows[0].peak_viewers) || 0,
-        duration: duration,
-        chat_messages: parseInt(chatCount.rows[0].chat_messages),
-        is_live: stream.rows[0].is_live
-      };
-    } catch (error) {
-      if (i === retries - 1) {
-        console.error('Error getting stream stats after retries:', error.message);
-        return null;
-      }
-      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
-    }
+    return {
+      current_viewers: parseInt(result.rows[0].current_viewers),
+      peak_viewers: parseInt(result.rows[0].peak_viewers),
+      duration: result.rows[0].duration,
+      chat_messages: parseInt(result.rows[0].chat_messages),
+      is_live: result.rows[0].is_live
+    };
+  } catch (error) {
+    console.error('Error getting stream stats:', error.message);
+    return null;
   }
-  return null;
 };
 
 const startStatsBroadcast = () => {
   setInterval(async () => {
+    if (streamSubscriptions.size === 0) return;
+    
     for (const [streamId, clients] of streamSubscriptions.entries()) {
+      if (clients.size === 0) continue;
+      
       const stats = await getStreamStats(streamId);
       if (stats) {
         const message = JSON.stringify({ type: 'stats', stats });

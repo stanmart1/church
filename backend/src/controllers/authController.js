@@ -1,7 +1,8 @@
 import pool from '../config/database.js';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { AUTH, HTTP_STATUS, AUDIT_ACTIONS } from '../config/constants.js';
+import { addToBlacklist } from '../services/tokenBlacklistService.js';
+import { verifyAndCheckToken, extractToken, generateToken } from '../utils/tokenUtils.js';
 
 export const register = async (req, res) => {
   try {
@@ -22,10 +23,10 @@ export const register = async (req, res) => {
       [name, email, hashedPassword, phone || null]
     );
 
-    const token = jwt.sign(
-      { userId: result.rows[0].id, email: result.rows[0].email, role: result.rows[0].role },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || AUTH.JWT_EXPIRES_IN }
+    const token = generateToken(
+      result.rows[0].id,
+      result.rows[0].email,
+      result.rows[0].role
     );
 
     console.log('User registered:', result.rows[0].id);
@@ -88,11 +89,7 @@ export const login = async (req, res) => {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || AUTH.JWT_EXPIRES_IN }
-    );
+    const token = generateToken(user.id, user.email, user.role);
 
     const userAgent = req.headers['user-agent'] || '';
     const device = parseUserAgent(userAgent);
@@ -114,26 +111,8 @@ export const login = async (req, res) => {
 
 export const verifyToken = async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: 'No token provided' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    const blacklist = await pool.query(
-      'SELECT created_at FROM token_blacklist WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1',
-      [decoded.userId]
-    );
-    
-    if (blacklist.rows.length > 0) {
-      const tokenIat = new Date(decoded.iat * 1000);
-      const logoutTime = new Date(blacklist.rows[0].created_at);
-      if (tokenIat < logoutTime) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: 'Token has been invalidated' });
-      }
-    }
+    const token = extractToken(req.headers.authorization);
+    const decoded = await verifyAndCheckToken(token);
     
     const result = await pool.query(
       'SELECT id, name, email, role, phone, status, created_at FROM users WHERE id = $1',
@@ -147,7 +126,7 @@ export const verifyToken = async (req, res) => {
     res.json({ user: result.rows[0] });
   } catch (error) {
     console.error('Verify token error:', error.message);
-    res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: 'Invalid token' });
+    res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: error.message });
   }
 };
 
@@ -186,10 +165,7 @@ export const getLoginHistory = async (req, res) => {
 
 export const logoutAll = async (req, res) => {
   try {
-    await pool.query(
-      "INSERT INTO token_blacklist (user_id) VALUES ($1)",
-      [req.params.userId]
-    );
+    await addToBlacklist(req.params.userId);
     await pool.query(
       "INSERT INTO audit_logs (event, user_id, ip_address, severity) VALUES ('Logout All Devices', $1, $2, 'medium')",
       [req.params.userId, req.ip]

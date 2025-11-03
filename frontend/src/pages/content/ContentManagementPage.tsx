@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import DashboardHeader from '@/components/layout/DashboardHeader';
-import HomeContent from './HomeContent';
-import AboutContent from './AboutContent';
-import ContactContent from './ContactContent';
-import ServiceContent from './ServiceContent';
+
+const HomeContent = lazy(() => import('./HomeContent'));
+const AboutContent = lazy(() => import('./AboutContent'));
+const ContactContent = lazy(() => import('./ContactContent'));
+const ServiceContent = lazy(() => import('./ServiceContent'));
+
+const LoadingSpinner = () => <div className="animate-pulse bg-gray-200 h-48 rounded-lg"></div>;
 
 export default function ContentManagementPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -55,10 +58,12 @@ export default function ContentManagementPage() {
               </div>
 
               <div className="p-4 sm:p-6">
-                {activeTab === 'home' && <HomeContent />}
-                {activeTab === 'about' && <AboutContent />}
-                {activeTab === 'contact' && <ContactContent />}
-                {activeTab === 'service' && <ServiceContent />}
+                <Suspense fallback={<LoadingSpinner />}>
+                  {activeTab === 'home' && <HomeContent />}
+                  {activeTab === 'about' && <AboutContent />}
+                  {activeTab === 'contact' && <ContactContent />}
+                  {activeTab === 'service' && <ServiceContent />}
+                </Suspense>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { body, param, validationResult } from 'express-validator';
+import { body, param, query, validationResult } from 'express-validator';
 
 export const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -54,5 +54,70 @@ export const validateServiceTime = [
 export const validatePasswordChange = [
   body('current_password').notEmpty().withMessage('Current password required'),
   body('new_password').isLength({ min: 8 }).withMessage('New password must be at least 8 characters'),
+  validate
+];
+
+// Giving validations
+export const validateGiving = [
+  body('member_id').isUUID().withMessage('Valid member ID required'),
+  body('amount').isFloat({ min: 0.01 }).withMessage('Amount must be positive'),
+  body('type').isIn(['tithe', 'offering', 'missions', 'building_fund', 'special'])
+    .withMessage('Invalid giving type'),
+  body('method').isIn(['cash', 'check', 'online', 'card'])
+    .withMessage('Invalid payment method'),
+  body('date').optional().isISO8601().withMessage('Valid date required'),
+  body('notes').optional().trim().isLength({ max: 500 }).withMessage('Notes too long'),
+  validate
+];
+
+// Sermon validations
+export const validateSermon = [
+  body('title').trim().isLength({ min: 3, max: 255 })
+    .withMessage('Title must be 3-255 characters'),
+  body('speaker').trim().isLength({ min: 2, max: 100 })
+    .withMessage('Speaker name required'),
+  body('date').isISO8601().withMessage('Valid date required'),
+  body('duration').optional().isInt({ min: 0 })
+    .withMessage('Duration must be positive integer'),
+  body('series_id').optional().isUUID().withMessage('Valid series ID required'),
+  body('description').optional().trim().isLength({ max: 2000 })
+    .withMessage('Description too long'),
+  body('tags').optional().trim(),
+  validate
+];
+
+export const validateSermonUpdate = [
+  param('id').isUUID().withMessage('Valid sermon ID required'),
+  body('title').optional().trim().isLength({ min: 3, max: 255 })
+    .withMessage('Title must be 3-255 characters'),
+  body('speaker').optional().trim().isLength({ min: 2, max: 100 })
+    .withMessage('Speaker name required'),
+  body('date').optional().isISO8601().withMessage('Valid date required'),
+  body('duration').optional().isInt({ min: 0 })
+    .withMessage('Duration must be positive integer'),
+  body('series_id').optional().isUUID().withMessage('Valid series ID required'),
+  validate
+];
+
+// UUID param validation
+export const validateUUID = [
+  param('id').isUUID().withMessage('Valid UUID required'),
+  validate
+];
+
+export const validateMemberId = [
+  param('memberId').isUUID().withMessage('Valid member ID required'),
+  validate
+];
+
+// Query param validations
+export const validatePagination = [
+  param('page').optional().isInt({ min: 1 }).withMessage('Page must be positive integer'),
+  param('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be 1-100'),
+  validate
+];
+
+export const validateYear = [
+  param('year').optional().isInt({ min: 2000, max: 2100 }).withMessage('Valid year required'),
   validate
 ];

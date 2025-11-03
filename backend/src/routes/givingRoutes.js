@@ -1,5 +1,6 @@
 import express from 'express';
 import { getMemberGiving, createGiving, getMemberGivingSummary } from '../controllers/givingController.js';
+import { validateGiving, validateMemberId } from '../middleware/validation.js';
 
 const router = express.Router();
 
@@ -68,8 +69,8 @@ const router = express.Router();
  *         description: Giving recorded
  */
 
-router.get('/member/:memberId', getMemberGiving);
-router.get('/member/:memberId/summary', getMemberGivingSummary);
-router.post('/', createGiving);
+router.get('/member/:memberId', validateMemberId, getMemberGiving);
+router.get('/member/:memberId/summary', validateMemberId, getMemberGivingSummary);
+router.post('/', validateGiving, createGiving);
 
 export default router;

@@ -1,6 +1,8 @@
 import pool from '../config/database.js';
 import { HTTP_STATUS } from '../config/constants.js';
 import { parsePaginationParams, formatPaginationResponse } from '../utils/pagination.js';
+import { buildPaginatedQuery } from '../utils/queryBuilder.js';
+import { withTransaction } from '../utils/transaction.js';
 
 export const getSermons = async (req, res) => {
   try {
@@ -8,36 +10,29 @@ export const getSermons = async (req, res) => {
     const { search, series, speaker } = req.query;
     const { page, limit } = parsePaginationParams(req.query);
     
-    let query = 'SELECT s.*, ss.name as series_name FROM sermons s LEFT JOIN sermon_series ss ON s.series_id = ss.id WHERE 1=1';
-    let countQuery = 'SELECT COUNT(*) FROM sermons s WHERE 1=1';
-    const params = [];
-    let paramCount = 1;
-
+    const baseQuery = 'SELECT s.*, ss.name as series_name FROM sermons s LEFT JOIN sermon_series ss ON s.series_id = ss.id WHERE 1=1';
+    
+    const conditions = [];
     if (search) {
-      const searchCondition = ` AND (s.title ILIKE $${paramCount} OR s.speaker ILIKE $${paramCount} OR s.description ILIKE $${paramCount})`;
-      query += searchCondition;
-      countQuery += searchCondition.replace(/s\./g, '');
-      params.push(`%${search}%`);
-      paramCount++;
+      conditions.push({ 
+        field: ['s.title', 's.speaker', 's.description'], 
+        value: search, 
+        type: 'search' 
+      });
     }
-
     if (series) {
-      query += ` AND s.series_id = $${paramCount}`;
-      countQuery += ` AND series_id = $${paramCount}`;
-      params.push(series);
-      paramCount++;
+      conditions.push({ field: 's.series_id', value: series, type: 'exact' });
     }
-
     if (speaker) {
-      query += ` AND s.speaker ILIKE $${paramCount}`;
-      countQuery += ` AND speaker ILIKE $${paramCount}`;
-      params.push(`%${speaker}%`);
-      paramCount++;
+      conditions.push({ field: 's.speaker', value: speaker, type: 'search' });
     }
 
-    const offset = (page - 1) * limit;
-    query += ` ORDER BY s.date DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
-    const queryParams = [...params, limit, offset];
+    const { query, countQuery, params, queryParams } = buildPaginatedQuery(
+      baseQuery + ' ORDER BY s.date DESC',
+      conditions,
+      page,
+      limit
+    );
 
     const [result, countResult] = await Promise.all([
       pool.query(query, queryParams),
@@ -78,27 +73,30 @@ export const createSermon = async (req, res) => {
     
     const { title, speaker, date, duration, description, series_id, tags } = req.body;
 
-    if (!title || !speaker || !date) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: 'Title, speaker, and date are required' });
-    }
-
     const audio_url = req.files?.audio ? `/uploads/sermons/audio/${req.files.audio[0].filename}` : null;
     const thumbnail_url = req.files?.thumbnail ? `/uploads/sermons/thumbnails/${req.files.thumbnail[0].filename}` : null;
     
     console.log('Creating sermon:', title);
 
-    const result = await pool.query(
-      `INSERT INTO sermons (title, speaker, date, duration, description, series_id, audio_url, video_url, thumbnail_url, tags)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [title, speaker, date, duration || null, description || null, series_id || null, audio_url, null, thumbnail_url, tags || null]
-    );
+    const sermon = await withTransaction(async (client) => {
+      const result = await client.query(
+        `INSERT INTO sermons (title, speaker, date, duration, description, series_id, audio_url, video_url, thumbnail_url, tags)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+        [title, speaker, date, duration || null, description || null, series_id || null, audio_url, null, thumbnail_url, tags || null]
+      );
 
-    if (series_id) {
-      await pool.query('UPDATE sermon_series SET sermon_count = sermon_count + 1 WHERE id = $1', [series_id]);
-    }
+      if (series_id) {
+        await client.query(
+          'UPDATE sermon_series SET sermon_count = sermon_count + 1 WHERE id = $1',
+          [series_id]
+        );
+      }
 
-    console.log('Sermon created:', result.rows[0].id);
-    res.status(HTTP_STATUS.CREATED).json(result.rows[0]);
+      return result.rows[0];
+    });
+
+    console.log('Sermon created:', sermon.id);
+    res.status(HTTP_STATUS.CREATED).json(sermon);
   } catch (error) {
     console.error('Create sermon error:', error.message);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: error.message });
@@ -133,22 +131,31 @@ export const updateSermon = async (req, res) => {
 export const deleteSermon = async (req, res) => {
   try {
     console.log('Deleting sermon:', req.params.id);
-    const sermon = await pool.query('SELECT series_id FROM sermons WHERE id = $1', [req.params.id]);
     
-    if (sermon.rows.length === 0) {
-      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'Sermon not found' });
-    }
+    await withTransaction(async (client) => {
+      const sermon = await client.query('SELECT series_id FROM sermons WHERE id = $1', [req.params.id]);
+      
+      if (sermon.rows.length === 0) {
+        throw new Error('Sermon not found');
+      }
 
-    await pool.query('DELETE FROM sermons WHERE id = $1', [req.params.id]);
+      await client.query('DELETE FROM sermons WHERE id = $1', [req.params.id]);
 
-    if (sermon.rows[0].series_id) {
-      await pool.query('UPDATE sermon_series SET sermon_count = sermon_count - 1 WHERE id = $1', [sermon.rows[0].series_id]);
-    }
+      if (sermon.rows[0].series_id) {
+        await client.query(
+          'UPDATE sermon_series SET sermon_count = sermon_count - 1 WHERE id = $1',
+          [sermon.rows[0].series_id]
+        );
+      }
+    });
 
     console.log('Sermon deleted:', req.params.id);
     res.json({ message: 'Sermon deleted successfully' });
   } catch (error) {
     console.error('Delete sermon error:', error.message);
+    if (error.message === 'Sermon not found') {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ error: error.message });
+    }
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: error.message });
   }
 };

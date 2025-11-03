@@ -3,6 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import express from 'express';
+import { UPLOAD } from '../config/constants.js';
+import { createFileFilter, sanitizeFilename } from '../middleware/fileValidation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,31 +26,25 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
+    const sanitized = sanitizeFilename(file.originalname);
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    const ext = path.extname(sanitized);
+    cb(null, uniqueSuffix + ext);
   }
 });
 
+const fieldConfig = {
+  audio: { allowedTypes: UPLOAD.ALLOWED_AUDIO_TYPES },
+  thumbnail: { allowedTypes: UPLOAD.ALLOWED_IMAGE_TYPES }
+};
+
 const uploader = multer({
   storage,
-  limits: { fileSize: 500 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (file.fieldname === 'audio') {
-      if (file.mimetype.startsWith('audio/')) {
-        cb(null, true);
-      } else {
-        cb(new Error('Only audio files are allowed'));
-      }
-    } else if (file.fieldname === 'thumbnail') {
-      if (file.mimetype.startsWith('image/')) {
-        cb(null, true);
-      } else {
-        cb(new Error('Only image files are allowed'));
-      }
-    } else {
-      cb(null, true);
-    }
-  }
+  limits: { 
+    fileSize: UPLOAD.MAX_AUDIO_SIZE,
+    files: 2
+  },
+  fileFilter: createFileFilter(fieldConfig)
 });
 
 export const uploadAudio = uploader.single('audio');

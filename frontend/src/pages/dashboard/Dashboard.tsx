@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import DashboardHeader from '@/components/layout/DashboardHeader';
-import QuickAccessPanel from '@/components/dashboard/QuickAccessPanel';
-import RecentActivity from '@/components/dashboard/RecentActivity';
-import StatsOverview from '@/components/dashboard/StatsOverview';
+
+const QuickAccessPanel = lazy(() => import('@/components/dashboard/QuickAccessPanel'));
+const RecentActivity = lazy(() => import('@/components/dashboard/RecentActivity'));
+const StatsOverview = lazy(() => import('@/components/dashboard/StatsOverview'));
+
+const LoadingSpinner = () => (
+  <div className="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
+);
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -24,14 +29,20 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <StatsOverview />
+            <Suspense fallback={<LoadingSpinner />}>
+              <StatsOverview />
+            </Suspense>
             
             <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="lg:col-span-2">
-                <QuickAccessPanel />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <QuickAccessPanel />
+                </Suspense>
               </div>
               <div>
-                <RecentActivity />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <RecentActivity />
+                </Suspense>
               </div>
             </div>
           </div>

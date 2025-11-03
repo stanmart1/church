@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import DashboardHeader from '@/components/layout/DashboardHeader';
-import MemberList from './MemberList';
-import AddMemberModal from './AddMemberModal';
-import ExportModal from './ExportModal';
+
+const MemberList = lazy(() => import('./MemberList'));
+const AddMemberModal = lazy(() => import('./AddMemberModal'));
+const ExportModal = lazy(() => import('./ExportModal'));
+
+const LoadingSpinner = () => (
+  <div className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>
+);
 
 export default function MembershipPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -68,24 +73,34 @@ export default function MembershipPage() {
                 </div>
               </div>
               
-              <MemberList searchTerm={searchTerm} filterRole="member" />
+              <Suspense fallback={<LoadingSpinner />}>
+                <MemberList searchTerm={searchTerm} filterRole="member" />
+              </Suspense>
             </div>
           </div>
         </main>
       </div>
 
-      <AddMemberModal 
-        isOpen={showAddModal} 
-        onClose={() => setShowAddModal(false)} 
-        onSuccess={() => window.location.reload()} 
-      />
+      {showAddModal && (
+        <Suspense fallback={null}>
+          <AddMemberModal 
+            isOpen={showAddModal} 
+            onClose={() => setShowAddModal(false)} 
+            onSuccess={() => window.location.reload()} 
+          />
+        </Suspense>
+      )}
 
-      <ExportModal
-        isOpen={showExportModal}
-        onClose={() => setShowExportModal(false)}
-        searchTerm={searchTerm}
-        filterRole="member"
-      />
+      {showExportModal && (
+        <Suspense fallback={null}>
+          <ExportModal
+            isOpen={showExportModal}
+            onClose={() => setShowExportModal(false)}
+            searchTerm={searchTerm}
+            filterRole="member"
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

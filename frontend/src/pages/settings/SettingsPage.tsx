@@ -1,11 +1,14 @@
 
 
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import DashboardHeader from '@/components/layout/DashboardHeader';
-import SystemSettings from './SystemSettings';
-import SecuritySettings from './SecuritySettings';
-import NotificationSettings from './NotificationSettings';
+
+const SystemSettings = lazy(() => import('./SystemSettings'));
+const SecuritySettings = lazy(() => import('./SecuritySettings'));
+const NotificationSettings = lazy(() => import('./NotificationSettings'));
+
+const LoadingSpinner = () => <div className="animate-pulse bg-gray-200 h-48 rounded-lg"></div>;
 
 export default function SettingsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -54,9 +57,11 @@ export default function SettingsPage() {
               </div>
 
               <div className="p-6">
-                {activeTab === 'system' && <SystemSettings />}
-                {activeTab === 'security' && <SecuritySettings />}
-                {activeTab === 'notifications' && <NotificationSettings />}
+                <Suspense fallback={<LoadingSpinner />}>
+                  {activeTab === 'system' && <SystemSettings />}
+                  {activeTab === 'security' && <SecuritySettings />}
+                  {activeTab === 'notifications' && <NotificationSettings />}
+                </Suspense>
               </div>
             </div>
           </div>

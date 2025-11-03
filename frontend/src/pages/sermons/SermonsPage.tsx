@@ -1,10 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useSeries } from '@/hooks/useSeries';
 import { SermonSeries } from '@/types';
 import Sidebar from '@/components/layout/Sidebar';
 import DashboardHeader from '@/components/layout/DashboardHeader';
-import SermonGrid from './SermonGrid';
-import UploadSermonModal from './UploadSermonModal';
+
+const SermonGrid = lazy(() => import('./SermonGrid'));
+const UploadSermonModal = lazy(() => import('./UploadSermonModal'));
+
+const LoadingSpinner = () => (
+  <div className="animate-pulse bg-gray-200 h-64 rounded-lg"></div>
+);
 
 export default function SermonsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -162,25 +167,31 @@ export default function SermonsPage() {
                 </div>
               </div>
               
-              <SermonGrid 
-                searchTerm={searchTerm}
-                filterSeries={filterSeries}
-                filterSpeaker={filterSpeaker}
-                filterDateRange={filterDateRange}
-                sortBy={sortBy}
-                viewMode={viewMode}
-              />
+              <Suspense fallback={<LoadingSpinner />}>
+                <SermonGrid 
+                  searchTerm={searchTerm}
+                  filterSeries={filterSeries}
+                  filterSpeaker={filterSpeaker}
+                  filterDateRange={filterDateRange}
+                  sortBy={sortBy}
+                  viewMode={viewMode}
+                />
+              </Suspense>
             </div>
           </div>
         </main>
       </div>
 
-      <UploadSermonModal 
-        isOpen={showUploadModal} 
-        onClose={() => setShowUploadModal(false)} 
-        onSuccess={() => window.location.reload()} 
-      />
-      <SeriesManagementModal isOpen={showSeriesModal} onClose={() => setShowSeriesModal(false)} />
+      {showUploadModal && (
+        <Suspense fallback={null}>
+          <UploadSermonModal 
+            isOpen={showUploadModal} 
+            onClose={() => setShowUploadModal(false)} 
+            onSuccess={() => window.location.reload()} 
+          />
+        </Suspense>
+      )}
+      {showSeriesModal && <SeriesManagementModal isOpen={showSeriesModal} onClose={() => setShowSeriesModal(false)} />}
     </div>
   );
 }
