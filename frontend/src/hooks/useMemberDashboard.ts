@@ -25,7 +25,6 @@ export const useMemberDashboard = (userId: string | number) => {
         api.get(`/dashboard/member/${userId}/recent-sermons`),
         api.get(`/dashboard/member/${userId}/upcoming-events`)
       ]);
-      console.log('Dashboard data:', { statsData, sermonsData, eventsData });
       setStats(statsData);
       setRecentSermons(sermonsData);
       setUpcomingEvents(eventsData);
