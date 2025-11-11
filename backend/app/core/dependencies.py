@@ -34,3 +34,13 @@ def require_permission(permission: str):
             raise ForbiddenException(f"Missing permission: {permission}")
         return current_user
     return permission_checker
+
+async def get_admin_user(current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "superadmin"]:
+        raise ForbiddenException("Admin access required")
+    return current_user
+
+async def get_superadmin_user(current_user: dict = Depends(get_current_user)):
+    if current_user["role"] != "superadmin":
+        raise ForbiddenException("Superadmin access required")
+    return current_user

@@ -2,6 +2,23 @@ from typing import List
 from app.core.constants import UserRole
 
 ROLE_PERMISSIONS = {
+    UserRole.SUPERADMIN: [
+        "manage_users",
+        "manage_members",
+        "manage_sermons",
+        "manage_events",
+        "manage_announcements",
+        "manage_forms",
+        "manage_giving",
+        "manage_livestream",
+        "manage_content",
+        "manage_settings",
+        "view_reports",
+        "view_members",
+        "view_sermons",
+        "view_events",
+        "register_events"
+    ],
     UserRole.ADMIN: [
         "manage_users",
         "manage_members",

@@ -13,6 +13,7 @@ class HTTPStatus:
     INTERNAL_SERVER_ERROR = 500
 
 class UserRole(str, Enum):
+    SUPERADMIN = "superadmin"
     ADMIN = "admin"
     PASTOR = "pastor"
     MINISTER = "minister"
