@@ -16,6 +16,8 @@ class Announcement(Base):
     expiry_date = Column(Date)
     status = Column(String(50), nullable=False, default="draft", index=True)
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"))
+    send_email = Column(Boolean, default=False)
+    send_sms = Column(Boolean, default=False)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
     

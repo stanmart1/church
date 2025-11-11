@@ -24,6 +24,7 @@ class User(Base):
     status = Column(String(50), nullable=False, default="active")
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+    notification_preferences = Column(Text, default="{}")
     
     announcements = relationship("Announcement", back_populates="creator")
     prayer_requests = relationship("PrayerRequest", back_populates="member")

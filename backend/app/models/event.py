@@ -19,6 +19,13 @@ class Event(Base):
     capacity = Column(Integer)
     registered_count = Column(Integer, default=0)
     status = Column(String(50), nullable=False, default="upcoming", index=True)
+    recurring = Column(Boolean, default=False)
+    recurring_type = Column(String(50))
+    registration_deadline = Column(Date)
+    cost = Column(Integer)
+    end_date = Column(Date)
+    registration_required = Column(Boolean, default=True)
+    organizer = Column(String(255))
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
     

@@ -27,6 +27,7 @@ class Sermon(Base):
     video_url = Column(Text)
     thumbnail_url = Column(Text)
     plays = Column(Integer, default=0)
+    downloads = Column(Integer, default=0)
     tags = Column(ARRAY(String))
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
