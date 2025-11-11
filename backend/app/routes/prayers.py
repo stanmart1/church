@@ -7,7 +7,7 @@ from app.schemas.prayer import PrayerCreate, PrayerUpdate, PrayerResponse
 from app.services import prayer_service
 from app.models.user import User
 
-router = APIRouter(prefix="/prayers", tags=["Prayers"], redirect_slashes=False)
+router = APIRouter(prefix="/prayers", tags=["Prayers"])
 
 @router.get("")
 async def get_prayer_requests(status: Optional[str] = None, page: int = 1, limit: int = 10, db: AsyncSession = Depends(get_db)):
@@ -17,13 +17,13 @@ async def get_prayer_requests(status: Optional[str] = None, page: int = 1, limit
 async def get_member_prayer_requests(member_id: str, db: AsyncSession = Depends(get_db)):
     return await prayer_service.get_member_prayer_requests(db, member_id)
 
+@router.post("", response_model=PrayerResponse, status_code=201)
+async def create_prayer_request(data: PrayerCreate, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    return await prayer_service.create_prayer_request(db, data, current_user.get("userId"))
+
 @router.get("/{prayer_id}", response_model=PrayerResponse)
 async def get_prayer_request(prayer_id: str, db: AsyncSession = Depends(get_db)):
     return await prayer_service.get_prayer_request(db, prayer_id)
-
-@router.post("/", response_model=PrayerResponse, status_code=201)
-async def create_prayer_request(data: PrayerCreate, db: AsyncSession = Depends(get_db)):
-    return await prayer_service.create_prayer_request(db, data)
 
 @router.put("/{prayer_id}", response_model=PrayerResponse)
 async def update_prayer_request(prayer_id: str, data: PrayerUpdate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):

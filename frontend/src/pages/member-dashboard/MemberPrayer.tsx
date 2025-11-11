@@ -22,12 +22,13 @@ export default function MemberPrayer() {
     if (!user?.id) return;
     setLoading(true);
     try {
-      const [myData, communityData] = await Promise.all([
+      const [myData, communityResponse] = await Promise.all([
         getMemberPrayerRequests(user.id),
         getPrayerRequests({ status: 'active', limit: 20 })
       ]);
       setMyRequests(myData || []);
-      setCommunityRequests((communityData || []).filter((r: any) => r.member_id !== user.id));
+      const communityData = Array.isArray(communityResponse) ? communityResponse : (communityResponse?.data || []);
+      setCommunityRequests(communityData.filter((r: any) => r.member_id !== user.id));
     } catch (error) {
       console.error('Error loading prayer requests:', error);
     } finally {

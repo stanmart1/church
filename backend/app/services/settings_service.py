@@ -58,7 +58,7 @@ async def get_unread_count(db: AsyncSession, user_id: str):
     from sqlalchemy import func
     from app.models.notification import Notification
     result = await db.execute(
-        select(func.count()).select_from(Notification).where(Notification.user_id == user_id).where(Notification.read == False)
+        select(func.count()).select_from(Notification).where(Notification.recipient_id == user_id).where(Notification.read == False)
     )
     return {"count": result.scalar()}
 

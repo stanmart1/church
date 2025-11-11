@@ -4,11 +4,10 @@ from datetime import date, datetime
 from uuid import UUID
 
 class PrayerRequestCreate(BaseModel):
-    member_id: str
-    request: str
-    is_private: bool = False
-    title: Optional[str] = None
+    title: str
     description: Optional[str] = None
+    is_private: bool = False
+    member_id: Optional[str] = None
     author: Optional[str] = None
 
 class PrayerRequestUpdate(BaseModel):
