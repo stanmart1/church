@@ -3,6 +3,8 @@ from sqlalchemy import select
 from app.models.user import User
 from app.models.audit import TokenBlacklist
 from app.utils.auth import hash_password, verify_password, create_access_token, create_refresh_token
+from app.utils.auth import decode_token
+from jose import JWTError
 from app.core.exceptions import UnauthorizedException, ConflictException
 
 async def register_user(db: AsyncSession, name: str, email: str, password: str, phone: str = None):
@@ -143,3 +145,15 @@ async def get_user_stats(db: AsyncSession):
     total = await db.execute(select(func.count()).select_from(User))
     active = await db.execute(select(func.count()).select_from(User).where(User.status == "active"))
     return {"total": total.scalar(), "active": active.scalar()}
+
+async def refresh_token(db: AsyncSession, refresh_token: str):
+    try:
+        payload = decode_token(refresh_token)
+        if payload.get("type") != "refresh":
+            raise UnauthorizedException("Invalid token type")
+        user = await get_user(db, payload["userId"])
+        access_token = create_access_token(str(user.id), user.email, user.role)
+        new_refresh_token = create_refresh_token(str(user.id))
+        return {"token": access_token, "refresh_token": new_refresh_token}
+    except JWTError:
+        raise UnauthorizedException("Invalid or expired refresh token")
