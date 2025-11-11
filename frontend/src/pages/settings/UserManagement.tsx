@@ -54,10 +54,13 @@ export default function UserManagement() {
   const loadRoles = async () => {
     try {
       const data = await getRoles();
-      setRoles(data.map((r: any) => ({ ...r, label: r.label.charAt(0).toUpperCase() + r.label.slice(1) })));
+      setRoles(data.map((r: any) => ({ 
+        value: r.name, 
+        label: r.name.charAt(0).toUpperCase() + r.name.slice(1) 
+      })));
       for (const role of data) {
-        const perms = await getRolePermissions(role.value);
-        setRolePermissionsMap(prev => ({ ...prev, [role.value]: perms }));
+        const perms = await getRolePermissions(role.name);
+        setRolePermissionsMap(prev => ({ ...prev, [role.name]: perms.permissions || [] }));
       }
     } catch (error) {
       console.error('Error loading roles:', error);
