@@ -17,11 +17,22 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         return False
 
 def create_access_token(user_id: str, email: str, role: str) -> str:
-    expire = datetime.utcnow() + timedelta(days=settings.JWT_EXPIRES_IN)
+    expire = datetime.utcnow() + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     payload = {
         "userId": str(user_id),
         "email": email,
         "role": role,
+        "type": "access",
+        "iat": datetime.utcnow(),
+        "exp": expire
+    }
+    return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+
+def create_refresh_token(user_id: str) -> str:
+    expire = datetime.utcnow() + timedelta(days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS)
+    payload = {
+        "userId": str(user_id),
+        "type": "refresh",
         "iat": datetime.utcnow(),
         "exp": expire
     }
