@@ -13,7 +13,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 async def get_user_stats(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_admin_user)):
     return await auth_service.get_user_stats(db)
 
-@router.get("/")
+@router.get("")
 async def get_users(
     page: int = 1,
     limit: int = 10,

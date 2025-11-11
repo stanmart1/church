@@ -154,9 +154,9 @@ export default function UserManagement() {
         {/* User Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { label: 'Total Users', value: stats.totalUsers.toString(), icon: 'ri-group-line', color: 'bg-blue-500' },
-            { label: 'Active Users', value: stats.activeUsers.toString(), icon: 'ri-user-line', color: 'bg-green-500' },
-            { label: 'Staff Members', value: stats.staffMembers.toString(), icon: 'ri-shield-user-line', color: 'bg-purple-500' }
+            { label: 'Total Users', value: (stats.totalUsers || 0).toString(), icon: 'ri-group-line', color: 'bg-blue-500' },
+            { label: 'Active Users', value: (stats.activeUsers || 0).toString(), icon: 'ri-user-line', color: 'bg-green-500' },
+            { label: 'Staff Members', value: (stats.staffMembers || 0).toString(), icon: 'ri-shield-user-line', color: 'bg-purple-500' }
           ].map((stat, index) => (
             <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="flex items-center">
