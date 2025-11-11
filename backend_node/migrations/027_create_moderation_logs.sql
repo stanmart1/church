@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS moderation_logs (
+  id SERIAL PRIMARY KEY,
+  action VARCHAR(50) NOT NULL,
+  viewer_ids INTEGER[] NOT NULL,
+  note TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

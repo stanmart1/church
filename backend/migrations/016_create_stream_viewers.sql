@@ -1,8 +1,0 @@
-CREATE TABLE IF NOT EXISTS stream_viewers (
-  id SERIAL PRIMARY KEY,
-  livestream_id INTEGER,
-  name VARCHAR(255) NOT NULL,
-  location VARCHAR(255),
-  status VARCHAR(50) DEFAULT 'active',
-  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
