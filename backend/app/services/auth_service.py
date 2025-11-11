@@ -49,3 +49,97 @@ async def logout_user(db: AsyncSession, user_id: str):
     blacklist = TokenBlacklist(user_id=user_id)
     db.add(blacklist)
     await db.commit()
+
+async def register(db: AsyncSession, data):
+    return await register_user(db, data.first_name + " " + data.last_name, data.email, data.password, data.phone)
+
+async def login(db: AsyncSession, data):
+    return await login_user(db, data.email, data.password)
+
+async def logout_all(db: AsyncSession, user_id: str):
+    await logout_user(db, user_id)
+
+async def get_login_history(db: AsyncSession, user_id: str):
+    from app.models.audit import AuditLog
+    result = await db.execute(
+        select(AuditLog).where(AuditLog.user_id == user_id).where(AuditLog.action == "login").order_by(AuditLog.created_at.desc()).limit(50)
+    )
+    return result.scalars().all()
+
+async def get_users(db: AsyncSession, page: int, limit: int, search: str = None, role: str = None, status: str = None):
+    from app.utils.pagination import parse_pagination_params, format_pagination_response
+    offset = (page - 1) * limit
+    query = select(User)
+    if search:
+        query = query.where(User.name.ilike(f"%{search}%") | User.email.ilike(f"%{search}%"))
+    if role:
+        query = query.where(User.role == role)
+    if status:
+        query = query.where(User.status == status)
+    result = await db.execute(query.offset(offset).limit(limit))
+    users = result.scalars().all()
+    from sqlalchemy import func
+    count_result = await db.execute(select(func.count()).select_from(User))
+    total = count_result.scalar()
+    return format_pagination_response(users, total, page, limit)
+
+async def get_user(db: AsyncSession, user_id: str):
+    from app.core.exceptions import NotFoundException
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise NotFoundException("User not found")
+    return user
+
+async def create_user(db: AsyncSession, data):
+    result = await db.execute(select(User).where(User.email == data.email))
+    if result.scalar_one_or_none():
+        raise ConflictException("Email already exists")
+    hashed_password = hash_password(data.password)
+    user = User(name=data.name, email=data.email, password=hashed_password, phone=data.phone, role=data.role if hasattr(data, 'role') else 'member')
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+async def update_user(db: AsyncSession, user_id: str, data):
+    user = await get_user(db, user_id)
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(user, key, value)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+async def delete_user(db: AsyncSession, user_id: str):
+    from sqlalchemy import delete as sql_delete
+    await db.execute(sql_delete(User).where(User.id == user_id))
+    await db.commit()
+
+async def reset_password(db: AsyncSession, user_id: str):
+    user = await get_user(db, user_id)
+    new_password = "TempPassword123!"
+    user.password = hash_password(new_password)
+    await db.commit()
+    return {"temporary_password": new_password}
+
+async def change_password(db: AsyncSession, user_id: str, current_password: str, new_password: str):
+    user = await get_user(db, user_id)
+    if not verify_password(current_password, user.password):
+        raise UnauthorizedException("Current password is incorrect")
+    user.password = hash_password(new_password)
+    await db.commit()
+
+async def get_notification_preferences(db: AsyncSession, user_id: str):
+    user = await get_user(db, user_id)
+    return {"preferences": user.notification_preferences or {}}
+
+async def update_notification_preferences(db: AsyncSession, user_id: str, preferences: dict):
+    user = await get_user(db, user_id)
+    user.notification_preferences = preferences
+    await db.commit()
+
+async def get_user_stats(db: AsyncSession):
+    from sqlalchemy import func
+    total = await db.execute(select(func.count()).select_from(User))
+    active = await db.execute(select(func.count()).select_from(User).where(User.status == "active"))
+    return {"total": total.scalar(), "active": active.scalar()}
