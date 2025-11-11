@@ -11,6 +11,8 @@ class SettingsCreate(BaseModel):
 class SettingsUpdate(BaseModel):
     value: str
 
+SettingUpdate = SettingsUpdate
+
 class SettingsResponse(BaseModel):
     id: UUID
     key: str

@@ -2,7 +2,8 @@ from fastapi import WebSocket, WebSocketDisconnect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.websocket.manager import manager
-from app.models.livestream import Livestream, ChatMessage, StreamViewer
+from app.models.livestream import Livestream, ChatMessage
+from app.models.stream import StreamViewer
 import json
 import asyncio
 
