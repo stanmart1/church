@@ -8,7 +8,7 @@ from app.models.user import User
 
 router = APIRouter(prefix="/announcements", tags=["Announcements"])
 
-@router.get("/")
+@router.get("")
 async def get_announcements(page: int = 1, limit: int = 10, db: AsyncSession = Depends(get_db)):
     return await announcement_service.get_announcements(db, page, limit)
 

@@ -9,7 +9,7 @@ from app.models.user import User
 
 router = APIRouter(prefix="/forms", tags=["Forms"])
 
-@router.get("/")
+@router.get("")
 async def get_forms(page: int = 1, limit: int = 10, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     return await form_service.get_forms(db, page, limit)
 

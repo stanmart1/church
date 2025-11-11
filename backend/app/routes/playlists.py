@@ -9,7 +9,7 @@ from app.models.user import User
 
 router = APIRouter(prefix="/playlists", tags=["Playlists"])
 
-@router.get("/")
+@router.get("")
 async def get_playlists(member_id: Optional[str] = None, db: AsyncSession = Depends(get_db)):
     return await playlist_service.get_playlists(db, member_id)
 
