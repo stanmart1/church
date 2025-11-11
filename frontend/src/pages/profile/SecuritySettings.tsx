@@ -29,14 +29,13 @@ export default function SecuritySettings() {
       api.get(`/auth/login-history/${user.id}`)
         .then(data => {
           setLoginHistory(Array.isArray(data) ? data : []);
-          setLoadingHistory(false);
         })
         .catch(err => {
           console.error('Failed to fetch login history:', err);
+        })
+        .finally(() => {
           setLoadingHistory(false);
         });
-    } else {
-      setLoadingHistory(false);
     }
   }, [user]);
 

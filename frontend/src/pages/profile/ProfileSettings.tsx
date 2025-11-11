@@ -21,14 +21,13 @@ export default function ProfileSettings() {
       getProfile(user.id)
         .then(data => {
           setFormData(data);
-          setLoading(false);
         })
         .catch(err => {
           console.error('Failed to fetch profile:', err);
+        })
+        .finally(() => {
           setLoading(false);
         });
-    } else {
-      setLoading(false);
     }
   }, [user]);
 

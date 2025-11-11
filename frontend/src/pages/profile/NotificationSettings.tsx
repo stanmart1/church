@@ -36,14 +36,13 @@ export default function NotificationSettings() {
           if (data?.preferences && Object.keys(data.preferences).length > 0) {
             setSettings(data.preferences);
           }
-          setLoading(false);
         })
         .catch(err => {
           console.error('Failed to fetch notification preferences:', err);
+        })
+        .finally(() => {
           setLoading(false);
         });
-    } else {
-      setLoading(false);
     }
   }, [user]);
 
