@@ -9,3 +9,8 @@ router = APIRouter()
 async def websocket_endpoint(websocket: WebSocket):
     async with AsyncSessionLocal() as db:
         await handle_websocket(websocket, db)
+
+@router.websocket("/")
+async def websocket_root(websocket: WebSocket):
+    async with AsyncSessionLocal() as db:
+        await handle_websocket(websocket, db)
