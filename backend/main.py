@@ -11,7 +11,7 @@ from app.routes import (
     announcements, giving, dashboard, content, settings as settings_route,
     forms, playlists, health, websocket, users, profile, permissions, roles, series
 )
-from app.websocket.handlers import heartbeat_task, cleanup_task
+from app.websocket.handlers import heartbeat_task, cleanup_task, stats_broadcast_task
 from app.services.token_blacklist_service import cleanup_expired_tokens
 
 async def token_cleanup_task():
@@ -23,12 +23,22 @@ async def token_cleanup_task():
                 print(f"Token cleanup error: {e}")
         await asyncio.sleep(6 * 60 * 60)  # Every 6 hours
 
+async def stats_task():
+    while True:
+        async with AsyncSessionLocal() as db:
+            try:
+                await stats_broadcast_task(db)
+            except Exception as e:
+                print(f"Stats broadcast error: {e}")
+        await asyncio.sleep(3)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     asyncio.create_task(token_cleanup_task())
     asyncio.create_task(heartbeat_task())
     asyncio.create_task(cleanup_task())
+    asyncio.create_task(stats_task())
     print("Server starting...")
     print("WebSocket server ready")
     yield
