@@ -8,7 +8,7 @@ from app.models.user import User
 
 router = APIRouter(prefix="/content", tags=["Content"])
 
-@router.get("/")
+@router.get("")
 async def get_content(db: AsyncSession = Depends(get_db)):
     return await content_service.get_all_content(db)
 
