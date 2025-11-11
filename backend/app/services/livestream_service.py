@@ -8,7 +8,10 @@ async def get_current_livestream(db: AsyncSession):
     result = await db.execute(
         select(Livestream).where(Livestream.is_live == True).order_by(Livestream.created_at.desc()).limit(1)
     )
-    return result.scalar_one_or_none()
+    livestream = result.scalar_one_or_none()
+    if not livestream:
+        return {"is_live": False}
+    return livestream
 
 async def get_livestream(db: AsyncSession, livestream_id: str):
     result = await db.execute(select(Livestream).where(Livestream.id == livestream_id))
