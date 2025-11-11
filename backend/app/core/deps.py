@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import Depends, Header
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
@@ -7,11 +8,10 @@ from app.core.exceptions import UnauthorizedException, ForbiddenException
 from app.core.rbac import has_permission
 from app.utils.auth import decode_token
 
-async def get_current_user(authorization: str = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise UnauthorizedException("Missing or invalid authorization header")
-    
-    token = authorization.replace("Bearer ", "")
+security = HTTPBearer()
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
     
     try:
         payload = decode_token(token)
