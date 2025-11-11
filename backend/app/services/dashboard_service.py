@@ -59,3 +59,39 @@ async def get_dashboard_stats(db: AsyncSession):
         "upcomingEvents": upcoming_events or 0,
         "activeAnnouncements": active_announcements or 0
     }
+
+async def get_recent_activity(db: AsyncSession):
+    return []
+
+async def get_member_stats(db: AsyncSession, member_id: str):
+    from app.models.giving import Giving
+    from app.models.event import EventRegistration
+    
+    total_giving = await db.scalar(
+        select(func.sum(Giving.amount)).where(Giving.member_id == member_id)
+    ) or 0
+    
+    events_attended = await db.scalar(
+        select(func.count(EventRegistration.id)).where(
+            EventRegistration.member_id == member_id,
+            EventRegistration.attended == True
+        )
+    ) or 0
+    
+    return {
+        "downloadedSermons": 0,
+        "totalGiving": float(total_giving),
+        "eventsAttended": events_attended
+    }
+
+async def get_member_recent_sermons(db: AsyncSession, member_id: str):
+    result = await db.execute(
+        select(Sermon).order_by(Sermon.date.desc()).limit(5)
+    )
+    return result.scalars().all()
+
+async def get_member_upcoming_events(db: AsyncSession, member_id: str):
+    result = await db.execute(
+        select(Event).where(Event.date >= datetime.utcnow().date()).order_by(Event.date).limit(5)
+    )
+    return result.scalars().all()
