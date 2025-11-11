@@ -33,27 +33,6 @@ export default function MemberDashboard() {
     if (user?.id) {
       fetchNotifications();
       fetchUnreadCount();
-      
-      const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:5001';
-      const ws = new WebSocket(wsUrl);
-      
-      ws.onopen = () => {
-        ws.send(JSON.stringify({ type: 'subscribe-notifications', userId: user.id }));
-      };
-      
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === 'new-notification') {
-            fetchNotifications();
-            fetchUnreadCount();
-          }
-        } catch (error) {
-          console.error('WebSocket error:', error);
-        }
-      };
-      
-      return () => ws.close();
     }
   }, [user?.id]);
 
