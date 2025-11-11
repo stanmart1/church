@@ -12,10 +12,22 @@ from app.routes import (
     forms, playlists, health, websocket
 )
 from app.websocket.handlers import heartbeat_task, cleanup_task
+from app.core.database import AsyncSessionLocal
+
+async def token_cleanup_task():
+    while True:
+        async with AsyncSessionLocal() as db:
+            try:
+                from app.services.token_blacklist_service import cleanup_expired_tokens
+                await cleanup_expired_tokens(db)
+            except Exception as e:
+                print(f"Token cleanup error: {e}")
+        await asyncio.sleep(6 * 60 * 60)  # Every 6 hours
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    asyncio.create_task(token_cleanup_task())
     asyncio.create_task(heartbeat_task())
     asyncio.create_task(cleanup_task())
     print(f"Server running on port {settings.PORT}")
