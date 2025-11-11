@@ -68,3 +68,39 @@ async def register_for_event(db: AsyncSession, event_id: str, member_id: str):
     await db.commit()
     await db.refresh(registration)
     return registration
+
+async def get_member_events(db: AsyncSession, member_id: str):
+    result = await db.execute(
+        select(Event).join(EventRegistration).where(EventRegistration.member_id == member_id).order_by(Event.date.desc())
+    )
+    return result.scalars().all()
+
+async def unregister_from_event(db: AsyncSession, event_id: str, member_id: str):
+    from sqlalchemy import delete
+    await db.execute(
+        delete(EventRegistration).where(
+            EventRegistration.event_id == event_id,
+            EventRegistration.member_id == member_id
+        )
+    )
+    event = await get_event(db, event_id)
+    event.registered_count = max(0, event.registered_count - 1)
+    await db.commit()
+
+async def get_event_attendees(db: AsyncSession, event_id: str):
+    result = await db.execute(
+        select(EventRegistration).where(EventRegistration.event_id == event_id)
+    )
+    return result.scalars().all()
+
+async def mark_attendance(db: AsyncSession, event_id: str, member_id: str):
+    result = await db.execute(
+        select(EventRegistration).where(
+            EventRegistration.event_id == event_id,
+            EventRegistration.member_id == member_id
+        )
+    )
+    registration = result.scalar_one_or_none()
+    if registration:
+        registration.attended = True
+        await db.commit()

@@ -7,9 +7,9 @@ from app.schemas.prayer import PrayerCreate, PrayerUpdate, PrayerResponse
 from app.services import prayer_service
 from app.models.user import User
 
-router = APIRouter(prefix="/prayers", tags=["Prayers"])
+router = APIRouter(prefix="/prayers", tags=["Prayers"], redirect_slashes=False)
 
-@router.get("/")
+@router.get("")
 async def get_prayer_requests(status: Optional[str] = None, page: int = 1, limit: int = 10, db: AsyncSession = Depends(get_db)):
     return await prayer_service.get_prayer_requests(db, page, limit, status)
 
