@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import asyncio
 from app.core.config import settings
-from app.core.database import engine
+from app.core.database import engine, AsyncSessionLocal
 from app.middleware.security import SecurityHeadersMiddleware
 from app.routes import (
     auth, sermons, events, members, livestreams, prayers,
@@ -12,13 +12,12 @@ from app.routes import (
     forms, playlists, health, websocket
 )
 from app.websocket.handlers import heartbeat_task, cleanup_task
-from app.core.database import AsyncSessionLocal
+from app.services.token_blacklist_service import cleanup_expired_tokens
 
 async def token_cleanup_task():
     while True:
         async with AsyncSessionLocal() as db:
             try:
-                from app.services.token_blacklist_service import cleanup_expired_tokens
                 await cleanup_expired_tokens(db)
             except Exception as e:
                 print(f"Token cleanup error: {e}")
@@ -30,7 +29,7 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(token_cleanup_task())
     asyncio.create_task(heartbeat_task())
     asyncio.create_task(cleanup_task())
-    print(f"Server running on port {settings.PORT}")
+    print("Server starting...")
     print("WebSocket server ready")
     yield
     # Shutdown

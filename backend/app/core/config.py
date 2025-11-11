@@ -1,7 +1,6 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    PORT: int = 5001
     ENVIRONMENT: str = "development"
     
     DATABASE_URL: str
