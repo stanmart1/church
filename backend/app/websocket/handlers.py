@@ -6,35 +6,35 @@ from app.models.livestream import Livestream, ChatMessage
 from app.models.stream import StreamViewer
 import json
 import asyncio
+from datetime import datetime
 
 async def get_stream_stats(db: AsyncSession, stream_id: str):
-    from sqlalchemy import case, literal
     result = await db.execute(
         select(
             Livestream.is_live,
+            Livestream.start_time,
             func.coalesce(func.count(StreamViewer.id).filter(StreamViewer.status == 'active'), 0).label('current_viewers'),
             func.coalesce(Livestream.viewers, 0).label('peak_viewers'),
-            func.coalesce(func.count(ChatMessage.id), 0).label('chat_messages'),
-            case(
-                (Livestream.is_live & (Livestream.start_time.isnot(None)),
-                 func.extract('epoch', func.now() - Livestream.start_time).cast(int)),
-                else_=literal(0)
-            ).label('duration')
+            func.coalesce(func.count(ChatMessage.id), 0).label('chat_messages')
         )
         .outerjoin(StreamViewer, StreamViewer.livestream_id == Livestream.id)
         .outerjoin(ChatMessage, ChatMessage.livestream_id == Livestream.id)
         .where(Livestream.id == stream_id)
-        .group_by(Livestream.id)
+        .group_by(Livestream.id, Livestream.start_time)
     )
     row = result.first()
     
     if not row or not row.is_live:
         return None
     
+    duration = 0
+    if row.start_time:
+        duration = int((datetime.utcnow() - row.start_time).total_seconds())
+    
     return {
         "current_viewers": int(row.current_viewers),
         "peak_viewers": int(row.peak_viewers),
-        "duration": row.duration,
+        "duration": duration,
         "chat_messages": int(row.chat_messages),
         "is_live": row.is_live
     }

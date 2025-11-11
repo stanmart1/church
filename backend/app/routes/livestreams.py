@@ -13,7 +13,7 @@ router = APIRouter(prefix="/livestreams", tags=["Livestreams"])
 async def get_current_livestream(db: AsyncSession = Depends(get_db)):
     return await livestream_service.get_current_livestream(db)
 
-@router.post("/", response_model=LivestreamResponse, status_code=201)
+@router.post("", response_model=LivestreamResponse, status_code=201)
 async def create_livestream(data: LivestreamCreate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     return await livestream_service.create_livestream(db, data)
 
