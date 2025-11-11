@@ -1,5 +1,5 @@
-from sqlalchemy import Column, String, Date, Text, Enum as SQLEnum, TIMESTAMP
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Date, Text, Enum as SQLEnum, TIMESTAMP, CheckConstraint
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -24,7 +24,15 @@ class User(Base):
     status = Column(String(50), nullable=False, default="active")
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
-    notification_preferences = Column(Text, default="{}")
+    notification_preferences = Column(JSONB, default={})
+    
+    __table_args__ = (
+        CheckConstraint("role IN ('superadmin', 'admin', 'pastor', 'minister', 'staff', 'member')", name='users_role_check'),
+        CheckConstraint("membership_status IN ('active', 'inactive', 'visitor')", name='users_membership_status_check'),
+        CheckConstraint("status IN ('active', 'inactive')", name='users_status_check'),
+        CheckConstraint("gender IN ('male', 'female')", name='users_gender_check'),
+        CheckConstraint("marital_status IN ('single', 'married', 'divorced', 'widowed')", name='users_marital_status_check'),
+    )
     
     announcements = relationship("Announcement", back_populates="creator")
     prayer_requests = relationship("PrayerRequest", back_populates="member")

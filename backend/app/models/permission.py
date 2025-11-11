@@ -19,3 +19,7 @@ class RolePermission(Base):
     role = Column(String(50), nullable=False, index=True)
     permission_id = Column(UUID(as_uuid=True), ForeignKey("permissions.id", ondelete="CASCADE"), nullable=False)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    
+    __table_args__ = (
+        {'sqlite_autoincrement': True},
+    )

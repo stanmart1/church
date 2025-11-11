@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Date, Text, Numeric, ForeignKey, TIMESTAMP
+from sqlalchemy import Column, String, Date, Text, Numeric, ForeignKey, TIMESTAMP, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -16,5 +16,10 @@ class Giving(Base):
     date = Column(Date, nullable=False, default=datetime.utcnow, index=True)
     notes = Column(Text)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    
+    __table_args__ = (
+        CheckConstraint("type IN ('tithe', 'offering', 'missions', 'building_fund', 'special')", name='giving_type_check'),
+        CheckConstraint("method IN ('cash', 'check', 'online', 'card')", name='giving_method_check'),
+    )
     
     member = relationship("User", back_populates="giving_records")

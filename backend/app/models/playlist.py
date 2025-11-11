@@ -22,3 +22,7 @@ class PlaylistSermon(Base):
     playlist_id = Column(UUID(as_uuid=True), ForeignKey("playlists.id", ondelete="CASCADE"), nullable=False, index=True)
     sermon_id = Column(UUID(as_uuid=True), ForeignKey("sermons.id", ondelete="CASCADE"), nullable=False)
     added_at = Column(TIMESTAMP, default=datetime.utcnow)
+    
+    __table_args__ = (
+        {'sqlite_autoincrement': True},
+    )

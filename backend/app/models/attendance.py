@@ -13,3 +13,7 @@ class Attendance(Base):
     service_type = Column(String(100), nullable=False)
     present = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    
+    __table_args__ = (
+        {'sqlite_autoincrement': True},
+    )

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Date, Text, Integer, ForeignKey, TIMESTAMP, Boolean
+from sqlalchemy import Column, String, Date, Text, Integer, ForeignKey, TIMESTAMP, Boolean, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -19,5 +19,9 @@ class PrayerRequest(Base):
     is_private = Column(Boolean, default=False)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = (
+        CheckConstraint("status IN ('active', 'answered', 'closed')", name='prayer_requests_status_check'),
+    )
     
     member = relationship("User", back_populates="prayer_requests")

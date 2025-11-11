@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Date, Text, ForeignKey, TIMESTAMP
+from sqlalchemy import Column, String, Date, Text, ForeignKey, TIMESTAMP, Boolean, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -20,5 +20,10 @@ class Announcement(Base):
     send_sms = Column(Boolean, default=False)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = (
+        CheckConstraint("priority IN ('low', 'medium', 'high')", name='announcements_priority_check'),
+        CheckConstraint("status IN ('draft', 'published', 'archived')", name='announcements_status_check'),
+    )
     
     creator = relationship("User", back_populates="announcements")

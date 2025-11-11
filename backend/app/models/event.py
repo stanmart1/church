@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Date, Time, Text, Integer, ForeignKey, TIMESTAMP, Boolean
+from sqlalchemy import Column, String, Date, Time, Text, Integer, ForeignKey, TIMESTAMP, Boolean, Numeric, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -22,12 +22,17 @@ class Event(Base):
     recurring = Column(Boolean, default=False)
     recurring_type = Column(String(50))
     registration_deadline = Column(Date)
-    cost = Column(Integer)
+    cost = Column(Numeric)
     end_date = Column(Date)
     registration_required = Column(Boolean, default=True)
     organizer = Column(String(255))
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = (
+        CheckConstraint("type IN ('worship', 'retreat', 'service', 'seminar', 'conference', 'other')", name='events_type_check'),
+        CheckConstraint("status IN ('upcoming', 'ongoing', 'completed', 'cancelled')", name='events_status_check'),
+    )
     
     registrations = relationship("EventRegistration", back_populates="event")
 
@@ -39,6 +44,10 @@ class EventRegistration(Base):
     member_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     registered_at = Column(TIMESTAMP, default=datetime.utcnow)
     attended = Column(Boolean, default=False)
+    
+    __table_args__ = (
+        {'sqlite_autoincrement': True},
+    )
     
     event = relationship("Event", back_populates="registrations")
     member = relationship("User", back_populates="event_registrations")
