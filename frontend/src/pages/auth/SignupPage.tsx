@@ -28,7 +28,10 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await register(name, email, password, phone || undefined);
+      const nameParts = name.trim().split(' ');
+      const first_name = nameParts[0] || '';
+      const last_name = nameParts.slice(1).join(' ') || nameParts[0];
+      await register(first_name, last_name, email, password, phone || undefined);
       navigate('/member-dashboard');
     } catch (err: any) {
       setError(err.message || 'Registration failed');

@@ -30,7 +30,7 @@ const request = async (endpoint: string, options: RequestInit = {}) => {
       removeToken();
       window.location.href = '/login';
     }
-    throw new Error(data.error || 'Request failed');
+    throw new Error(data.error || data.detail || 'Request failed');
   }
 
   return data;
