@@ -9,7 +9,7 @@ from app.middleware.security import SecurityHeadersMiddleware
 from app.routes import (
     auth, sermons, events, members, livestreams, prayers,
     announcements, giving, dashboard, content, settings as settings_route,
-    forms, playlists, health, websocket, users, profile
+    forms, playlists, health, websocket, users, profile, permissions, roles, series
 )
 from app.websocket.handlers import heartbeat_task, cleanup_task
 from app.services.token_blacklist_service import cleanup_expired_tokens
@@ -75,4 +75,7 @@ app.include_router(content.router, prefix="/api")
 app.include_router(settings_route.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(profile.router, prefix="/api")
+app.include_router(permissions.router, prefix="/api")
+app.include_router(roles.router, prefix="/api")
+app.include_router(series.router, prefix="/api")
 app.include_router(websocket.router)
