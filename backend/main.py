@@ -29,10 +29,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Church Management API",
+    description="A modern church administration platform with member management, sermons, events, livestreaming, and more.",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/api-docs",
-    redoc_url=None
+    swagger_ui_parameters={"defaultModelsExpandDepth": -1}
 )
 
 app.add_middleware(SecurityHeadersMiddleware)
