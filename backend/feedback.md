@@ -101,6 +101,94 @@ export PYTHONPATH=. && uv run migrator makemigrations "initial migration"
    - Detect foreign key conflicts
    - Suggest solutions (stamp, force, clean)
 
+## Alternative Approach: Custom Migration Engine 💡
+
+**Recommendation:** Consider building a custom migration engine instead of wrapping Alembic.
+
+### Why?
+
+1. **Alembic Limitations:**
+   - Requires synchronous drivers (psycopg2) even for async apps
+   - Complex dependency management
+   - Doesn't handle existing schemas gracefully
+   - Heavy dependency footprint
+
+2. **Custom Engine Benefits:**
+   - **Native async support** - Use asyncpg directly
+   - **Simpler dependencies** - Only SQLAlchemy + your async driver
+   - **Better control** - Handle edge cases like existing schemas
+   - **Lighter weight** - No Alembic/Mako overhead
+   - **Framework agnostic** - True independence from Alembic's opinions
+
+### Proposed Architecture:
+
+```python
+# migrations/001_create_users.py
+async def upgrade(db):
+    await db.execute("""
+        CREATE TABLE users (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL
+        )
+    """)
+
+async def downgrade(db):
+    await db.execute("DROP TABLE users")
+```
+
+### Commands:
+
+```bash
+migrator makemigrations "create users"  # Generate from SQLAlchemy models
+migrator migrate                         # Run pending migrations async
+migrator rollback                        # Rollback last migration
+migrator status                          # Show migration state
+```
+
+### Implementation Strategy:
+
+1. **Migration Files:** Simple Python files with `upgrade()` and `downgrade()` functions
+2. **Tracking Table:** `_migrations` table to track applied migrations
+3. **Auto-generation:** Inspect SQLAlchemy metadata and generate SQL
+4. **Async Execution:** Use asyncpg/asyncio for all operations
+5. **Conflict Detection:** Check existing tables before creating
+6. **Smart Diffing:** Compare DB schema with models before generating
+
+### Benefits for Your Tool:
+
+- ✅ No psycopg2 dependency
+- ✅ True async migrations
+- ✅ Handle existing databases gracefully
+- ✅ Simpler codebase to maintain
+- ✅ Better error messages and UX
+- ✅ Faster execution (no sync/async bridge)
+- ✅ More control over migration logic
+
+### Example Flow:
+
+```bash
+# Tool detects existing tables
+migrator migrate
+
+⚠️  Existing tables detected:
+  - users
+  - sermons
+  - events
+
+Options:
+  1. Skip existing tables (recommended)
+  2. Drop and recreate (destructive)
+  3. Mark as migrated (stamp)
+
+Choice [1]: 1
+
+✅ Skipped 3 existing tables
+✅ Created 2 new tables
+```
+
+This approach would make your tool truly unique and solve the core issues we encountered.
+
 ## Overall Assessment ⭐⭐⭐⭐
 
 **Rating: 4/5**
@@ -124,9 +212,11 @@ export PYTHONPATH=. && uv run migrator makemigrations "initial migration"
 
 The tool is excellent for new projects but needs better handling of existing schemas. Adding a `stamp` command and better error messages would make it production-ready.
 
+**Long-term:** Consider building a custom async-native migration engine to truly differentiate from Alembic and solve these fundamental issues.
+
 ## Would I Use It Again?
 
-**Yes!** Despite the issues, this is significantly better than configuring Alembic manually. With the suggested improvements, this could become the standard migration tool for Python projects.
+**Yes!** Despite the issues, this is significantly better than configuring Alembic manually. With the suggested improvements (especially a custom engine), this could become the standard migration tool for Python projects.
 
 ---
 
