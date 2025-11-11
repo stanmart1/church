@@ -28,3 +28,39 @@ async def update_content(db: AsyncSession, key: str, data: ContentUpdate):
     await db.commit()
     await db.refresh(content)
     return content
+
+async def get_service_times(db: AsyncSession, page: int, limit: int):
+    from app.models.service_time import ServiceTime
+    from app.utils.pagination import format_pagination_response
+    from sqlalchemy import func
+    offset = (page - 1) * limit
+    result = await db.execute(select(ServiceTime).offset(offset).limit(limit))
+    times = result.scalars().all()
+    total = await db.scalar(select(func.count(ServiceTime.id)))
+    return format_pagination_response(times, total, page, limit)
+
+async def create_service_time(db: AsyncSession, data):
+    from app.models.service_time import ServiceTime
+    service_time = ServiceTime(**data.model_dump())
+    db.add(service_time)
+    await db.commit()
+    await db.refresh(service_time)
+    return service_time
+
+async def update_service_time(db: AsyncSession, service_time_id: str, data):
+    from app.models.service_time import ServiceTime
+    result = await db.execute(select(ServiceTime).where(ServiceTime.id == service_time_id))
+    service_time = result.scalar_one_or_none()
+    if not service_time:
+        raise NotFoundException("Service time not found")
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(service_time, key, value)
+    await db.commit()
+    await db.refresh(service_time)
+    return service_time
+
+async def delete_service_time(db: AsyncSession, service_time_id: str):
+    from app.models.service_time import ServiceTime
+    from sqlalchemy import delete
+    await db.execute(delete(ServiceTime).where(ServiceTime.id == service_time_id))
+    await db.commit()
