@@ -119,12 +119,10 @@ async def broadcast_to_all_users():
     await manager.broadcast_notifications({"type": "new-notification"})
 
 async def stats_broadcast_task(db: AsyncSession):
-    while True:
-        await asyncio.sleep(3)
-        for stream_id in list(manager.stream_subscriptions.keys()):
-            stats = await get_stream_stats(db, stream_id)
-            if stats:
-                await manager.broadcast_to_stream(stream_id, {"type": "stats", "stats": stats})
+    for stream_id in list(manager.stream_subscriptions.keys()):
+        stats = await get_stream_stats(db, stream_id)
+        if stats:
+            await manager.broadcast_to_stream(stream_id, {"type": "stats", "stats": stats})
 
 async def heartbeat_task():
     while True:
