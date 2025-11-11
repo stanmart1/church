@@ -8,13 +8,14 @@ import json
 import asyncio
 
 async def get_stream_stats(db: AsyncSession, stream_id: str):
+    from sqlalchemy import case
     result = await db.execute(
         select(
             Livestream.is_live,
             func.coalesce(func.count(StreamViewer.id).filter(StreamViewer.status == 'active'), 0).label('current_viewers'),
             func.coalesce(Livestream.viewers, 0).label('peak_viewers'),
             func.coalesce(func.count(ChatMessage.id), 0).label('chat_messages'),
-            func.case(
+            case(
                 (Livestream.is_live & (Livestream.start_time.isnot(None)),
                  func.extract('epoch', func.now() - Livestream.start_time).cast(int)),
                 else_=0
