@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Date, Text, Numeric, ForeignKey, TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 from app.core.database import Base
@@ -15,3 +16,5 @@ class Giving(Base):
     date = Column(Date, nullable=False, default=datetime.utcnow, index=True)
     notes = Column(Text)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    
+    member = relationship("User", back_populates="giving_records")

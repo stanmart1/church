@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Text, Integer, ForeignKey, TIMESTAMP, Boolean
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 from app.core.database import Base
@@ -16,6 +17,8 @@ class Livestream(Base):
     start_time = Column(TIMESTAMP)
     end_time = Column(TIMESTAMP)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    
+    chat_messages = relationship("ChatMessage", back_populates="livestream")
 
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
@@ -26,3 +29,6 @@ class ChatMessage(Base):
     user_name = Column(String(255), nullable=False)
     text = Column(Text, nullable=False)
     created_at = Column(TIMESTAMP, default=datetime.utcnow, index=True)
+    
+    livestream = relationship("Livestream", back_populates="chat_messages")
+    user = relationship("User", back_populates="chat_messages")

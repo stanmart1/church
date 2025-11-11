@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Date, Text, Enum as SQLEnum, TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 from app.core.database import Base
@@ -23,3 +24,9 @@ class User(Base):
     status = Column(String(50), nullable=False, default="active")
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    announcements = relationship("Announcement", back_populates="creator")
+    prayer_requests = relationship("PrayerRequest", back_populates="member")
+    giving_records = relationship("Giving", back_populates="member")
+    event_registrations = relationship("EventRegistration", back_populates="member")
+    chat_messages = relationship("ChatMessage", back_populates="user")

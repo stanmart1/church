@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Date, Text, ForeignKey, TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 from app.core.database import Base
@@ -17,3 +18,5 @@ class Announcement(Base):
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"))
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    creator = relationship("User", back_populates="announcements")

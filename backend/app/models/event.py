@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Date, Time, Text, Integer, ForeignKey, TIMESTAMP, Boolean
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
 from app.core.database import Base
@@ -20,6 +21,8 @@ class Event(Base):
     status = Column(String(50), nullable=False, default="upcoming", index=True)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     updated_at = Column(TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    registrations = relationship("EventRegistration", back_populates="event")
 
 class EventRegistration(Base):
     __tablename__ = "event_registrations"
@@ -29,3 +32,6 @@ class EventRegistration(Base):
     member_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     registered_at = Column(TIMESTAMP, default=datetime.utcnow)
     attended = Column(Boolean, default=False)
+    
+    event = relationship("Event", back_populates="registrations")
+    member = relationship("User", back_populates="event_registrations")
