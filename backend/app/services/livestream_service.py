@@ -58,3 +58,83 @@ async def get_chat_messages(db: AsyncSession, livestream_id: str, limit: int = 5
         .limit(limit)
     )
     return result.scalars().all()
+
+async def delete_chat_message(db: AsyncSession, message_id: str):
+    from sqlalchemy import delete
+    await db.execute(delete(ChatMessage).where(ChatMessage.id == message_id))
+    await db.commit()
+
+async def get_stream_history(db: AsyncSession):
+    result = await db.execute(
+        select(Livestream).where(Livestream.is_live == False).order_by(Livestream.created_at.desc()).limit(50)
+    )
+    return result.scalars().all()
+
+async def get_viewers(db: AsyncSession, livestream_id: str):
+    from app.models.stream import StreamViewer
+    result = await db.execute(
+        select(StreamViewer).where(StreamViewer.livestream_id == livestream_id)
+    )
+    return result.scalars().all()
+
+async def add_viewer(db: AsyncSession, livestream_id: str, data: dict):
+    from app.models.stream import StreamViewer
+    viewer = StreamViewer(livestream_id=livestream_id, **data)
+    db.add(viewer)
+    await db.commit()
+    await db.refresh(viewer)
+    return viewer
+
+async def remove_viewer(db: AsyncSession, viewer_id: str):
+    from sqlalchemy import delete
+    from app.models.stream import StreamViewer
+    await db.execute(delete(StreamViewer).where(StreamViewer.id == viewer_id))
+    await db.commit()
+
+async def ban_viewer(db: AsyncSession, viewer_id: str):
+    from app.models.stream import StreamViewer
+    result = await db.execute(select(StreamViewer).where(StreamViewer.id == viewer_id))
+    viewer = result.scalar_one_or_none()
+    if viewer:
+        viewer.status = 'kicked'
+        await db.commit()
+
+async def unban_viewer(db: AsyncSession, viewer_id: str):
+    from app.models.stream import StreamViewer
+    result = await db.execute(select(StreamViewer).where(StreamViewer.id == viewer_id))
+    viewer = result.scalar_one_or_none()
+    if viewer:
+        viewer.status = 'active'
+        await db.commit()
+
+async def bulk_viewer_action(db: AsyncSession, data: dict):
+    from app.models.stream import StreamViewer
+    action = data.get('action')
+    viewer_ids = data.get('viewer_ids', [])
+    if action == 'kick':
+        await db.execute(
+            select(StreamViewer).where(StreamViewer.id.in_(viewer_ids))
+        )
+        for viewer_id in viewer_ids:
+            await ban_viewer(db, viewer_id)
+
+async def get_stream_stats(db: AsyncSession, livestream_id: str):
+    from app.models.stream import StreamViewer
+    livestream = await get_livestream(db, livestream_id)
+    result = await db.execute(
+        select(func.count()).select_from(StreamViewer).where(StreamViewer.livestream_id == livestream_id).where(StreamViewer.status == 'active')
+    )
+    current_viewers = result.scalar()
+    chat_result = await db.execute(
+        select(func.count()).select_from(ChatMessage).where(ChatMessage.livestream_id == livestream_id)
+    )
+    chat_messages = chat_result.scalar()
+    return {
+        "current_viewers": current_viewers,
+        "peak_viewers": livestream.viewers,
+        "chat_messages": chat_messages,
+        "is_live": livestream.is_live
+    }
+
+async def stream_audio(db: AsyncSession, data: dict):
+    return {"message": "Audio streaming endpoint"}

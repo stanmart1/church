@@ -51,3 +51,11 @@ async def update_setting(key: str, data: SettingUpdate, db: AsyncSession = Depen
 async def update_bulk_settings(settings: Dict[str, str], db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     await settings_service.update_bulk_settings(db, settings)
     return {"message": "Settings updated"}
+
+@router.get("/integrations/stats")
+async def get_integration_stats(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return await settings_service.get_integration_stats(db)
+
+@router.post("/integrations/{integration}/test")
+async def test_integration(integration: str, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return await settings_service.test_integration(db, integration)

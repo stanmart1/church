@@ -59,7 +59,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 async def root():
     return {"status": "ok", "message": "Church API is running"}
 
-app.include_router(health.router, prefix="/api")
+app.include_router(health.router)
 app.include_router(auth.router, prefix="/api")
 app.include_router(dashboard.router, prefix="/api")
 app.include_router(members.router, prefix="/api")
