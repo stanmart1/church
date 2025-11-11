@@ -21,7 +21,8 @@ async def get_livestream(db: AsyncSession, livestream_id: str):
     return livestream
 
 async def create_livestream(db: AsyncSession, data: LivestreamCreate):
-    livestream = Livestream(**data.model_dump())
+    from datetime import datetime
+    livestream = Livestream(**data.model_dump(), is_live=True, start_time=datetime.utcnow())
     db.add(livestream)
     await db.commit()
     await db.refresh(livestream)
