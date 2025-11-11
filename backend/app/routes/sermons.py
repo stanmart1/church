@@ -9,7 +9,7 @@ from app.models.user import User
 
 router = APIRouter(prefix="/sermons", tags=["Sermons"])
 
-@router.get("/")
+@router.get("")
 async def get_sermons(
     page: int = 1,
     limit: int = 10,
@@ -19,11 +19,27 @@ async def get_sermons(
 ):
     return await sermon_service.get_sermons(db, page, limit, search, series_id)
 
+@router.post("", response_model=SermonResponse, status_code=201)
+async def create_sermon(
+    title: str = Form(...),
+    speaker: str = Form(...),
+    date: str = Form(...),
+    description: Optional[str] = Form(None),
+    series_id: Optional[str] = Form(None),
+    audio: Optional[UploadFile] = File(None),
+    video: Optional[UploadFile] = File(None),
+    thumbnail: Optional[UploadFile] = File(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    data = SermonCreate(title=title, speaker=speaker, date=date, description=description, series_id=series_id)
+    return await sermon_service.create_sermon(db, data, audio, video, thumbnail)
+
 @router.get("/{sermon_id}", response_model=SermonResponse)
 async def get_sermon(sermon_id: str, db: AsyncSession = Depends(get_db)):
     return await sermon_service.get_sermon(db, sermon_id)
 
-@router.post("/", response_model=SermonResponse, status_code=201)
+@router.put("/{sermon_id}", response_model=SermonResponse)
 async def create_sermon(
     title: str = Form(...),
     speaker: str = Form(...),

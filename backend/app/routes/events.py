@@ -9,7 +9,7 @@ from app.models.user import User
 
 router = APIRouter(prefix="/events", tags=["Events"])
 
-@router.get("/")
+@router.get("")
 async def get_events(
     page: int = 1,
     limit: int = 10,

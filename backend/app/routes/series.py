@@ -26,12 +26,21 @@ class SeriesResponse(BaseModel):
     class Config:
         from_attributes = True
 
-@router.get("/")
+@router.get("")
 async def get_series(db: AsyncSession = Depends(get_db)):
     from sqlalchemy import select
     from app.models.sermon import SermonSeries
     result = await db.execute(select(SermonSeries))
     return result.scalars().all()
+
+@router.post("", response_model=SeriesResponse, status_code=201)
+async def create_series(data: SeriesCreate, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    from app.models.sermon import SermonSeries
+    series = SermonSeries(**data.model_dump())
+    db.add(series)
+    await db.commit()
+    await db.refresh(series)
+    return series
 
 @router.get("/{series_id}", response_model=SeriesResponse)
 async def get_series_by_id(series_id: str, db: AsyncSession = Depends(get_db)):
@@ -44,7 +53,7 @@ async def get_series_by_id(series_id: str, db: AsyncSession = Depends(get_db)):
         raise NotFoundException("Series not found")
     return series
 
-@router.post("/", response_model=SeriesResponse, status_code=201)
+@router.put("/{series_id}", response_model=SeriesResponse)
 async def create_series(data: SeriesCreate, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
     from app.models.sermon import SermonSeries
     series = SermonSeries(**data.model_dump())
