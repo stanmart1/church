@@ -26,8 +26,8 @@ async def get_recent_notifications(page: int = 1, limit: int = 10, db: AsyncSess
     return await settings_service.get_recent_notifications(db, page, limit)
 
 @router.get("/notifications/unread-count")
-async def get_unread_count(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return await settings_service.get_unread_count(db, str(current_user.id))
+async def get_unread_count(db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    return await settings_service.get_unread_count(db, current_user["userId"])
 
 @router.put("/notifications/{notification_id}/read")
 async def mark_notification_read(notification_id: str, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
