@@ -4,8 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from app.models.audit import TokenBlacklist
 from app.core.logging import logger
-
-TOKEN_BLACKLIST_CLEANUP_HOURS = 168  # 7 days
+from app.core.constants import TOKEN_BLACKLIST_CLEANUP_HOURS
 
 async def cleanup_expired_tokens(db: AsyncSession) -> int:
     """Delete expired token blacklist entries"""
