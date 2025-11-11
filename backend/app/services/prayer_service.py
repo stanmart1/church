@@ -53,3 +53,17 @@ async def increment_prayers(db: AsyncSession, prayer_id: str):
     prayer = await get_prayer_request(db, prayer_id)
     prayer.prayers += 1
     await db.commit()
+
+async def get_member_prayer_requests(db: AsyncSession, member_id: str):
+    result = await db.execute(
+        select(PrayerRequest).where(PrayerRequest.member_id == member_id).order_by(PrayerRequest.date.desc())
+    )
+    return result.scalars().all()
+
+async def delete_prayer_request(db: AsyncSession, prayer_id: str):
+    from sqlalchemy import delete
+    await db.execute(delete(PrayerRequest).where(PrayerRequest.id == prayer_id))
+    await db.commit()
+
+async def increment_prayer_count(db: AsyncSession, prayer_id: str):
+    await increment_prayers(db, prayer_id)

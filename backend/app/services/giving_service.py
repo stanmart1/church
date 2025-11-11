@@ -39,3 +39,12 @@ async def get_giving_stats(db: AsyncSession, member_id: str = None):
         query = query.where(Giving.member_id == member_id)
     total = await db.scalar(query) or 0
     return {"total": float(total)}
+
+async def get_member_giving(db: AsyncSession, member_id: str, page: int, limit: int):
+    return await get_giving_records(db, page, limit, member_id=member_id)
+
+async def get_member_giving_summary(db: AsyncSession, member_id: str):
+    return await get_giving_stats(db, member_id=member_id)
+
+async def create_giving(db: AsyncSession, data: GivingCreate):
+    return await create_giving_record(db, data)
