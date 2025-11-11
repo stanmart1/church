@@ -11,13 +11,11 @@ from app.routes import (
     announcements, giving, dashboard, content, settings as settings_route,
     forms, playlists, health, websocket
 )
-from app.websocket.handlers import stats_broadcast_task, heartbeat_task, cleanup_task
-from app.services.token_blacklist_service import cleanup_expired_tokens
+from app.websocket.handlers import heartbeat_task, cleanup_task
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    asyncio.create_task(cleanup_expired_tokens())
     asyncio.create_task(heartbeat_task())
     asyncio.create_task(cleanup_task())
     print(f"Server running on port {settings.PORT}")
