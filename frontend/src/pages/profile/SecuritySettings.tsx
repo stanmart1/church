@@ -35,6 +35,8 @@ export default function SecuritySettings() {
           console.error('Failed to fetch login history:', err);
           setLoadingHistory(false);
         });
+    } else {
+      setLoadingHistory(false);
     }
   }, [user]);
 

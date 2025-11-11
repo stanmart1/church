@@ -27,6 +27,8 @@ export default function ProfileSettings() {
           console.error('Failed to fetch profile:', err);
           setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
   }, [user]);
 

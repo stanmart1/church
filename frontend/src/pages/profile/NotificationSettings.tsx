@@ -33,8 +33,8 @@ export default function NotificationSettings() {
     if (user?.id) {
       getNotificationPreferences(user.id)
         .then(data => {
-          if (Object.keys(data).length > 0) {
-            setSettings(data);
+          if (data?.preferences && Object.keys(data.preferences).length > 0) {
+            setSettings(data.preferences);
           }
           setLoading(false);
         })
@@ -42,6 +42,8 @@ export default function NotificationSettings() {
           console.error('Failed to fetch notification preferences:', err);
           setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
