@@ -46,6 +46,7 @@ async def handle_websocket(websocket: WebSocket, db: AsyncSession):
         while True:
             data = await websocket.receive_text()
             message = json.loads(data)
+            manager.update_activity(websocket)
             
             if message["type"] == "ping":
                 await websocket.send_json({"type": "pong"})
@@ -122,3 +123,24 @@ async def stats_broadcast_task(db: AsyncSession):
             stats = await get_stream_stats(db, stream_id)
             if stats:
                 await manager.broadcast_to_stream(stream_id, {"type": "stats", "stats": stats})
+
+async def heartbeat_task():
+    while True:
+        await asyncio.sleep(30)
+        all_websockets = set()
+        for clients in manager.stream_subscriptions.values():
+            all_websockets.update(clients)
+        all_websockets.update(manager.stream_status_subscribers)
+        for clients in manager.notification_subscribers.values():
+            all_websockets.update(clients)
+        
+        for ws in all_websockets:
+            try:
+                await ws.send_json({"type": "ping"})
+            except:
+                pass
+
+async def cleanup_task():
+    while True:
+        await asyncio.sleep(60)
+        await manager.cleanup_stale_connections()
