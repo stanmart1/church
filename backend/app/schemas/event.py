@@ -47,6 +47,9 @@ class EventResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class EventRegistration(BaseModel):
+    member_id: str
+
 class EventRegistrationCreate(BaseModel):
     event_id: UUID
     member_id: UUID

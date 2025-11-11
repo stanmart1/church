@@ -4,8 +4,10 @@ from datetime import datetime
 from uuid import UUID
 
 class PlaylistCreate(BaseModel):
-    name: str
+    title: str
     description: Optional[str] = None
+    member_id: str
+    name: Optional[str] = None
     is_public: bool = False
 
 class PlaylistUpdate(BaseModel):
@@ -23,6 +25,12 @@ class PlaylistResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+class PlaylistSermonAdd(BaseModel):
+    sermon_id: str
+
+class SermonBookmark(BaseModel):
+    member_id: str
 
 class PlaylistSermonCreate(BaseModel):
     playlist_id: UUID

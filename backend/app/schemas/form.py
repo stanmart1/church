@@ -34,8 +34,7 @@ class FormResponse(BaseModel):
         from_attributes = True
 
 class FormResponseCreate(BaseModel):
-    form_id: UUID
-    member_id: Optional[UUID] = None
+    member_id: Optional[str] = None
     responses: Dict[str, Any]
 
 class FormResponseResponse(BaseModel):
