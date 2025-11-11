@@ -9,7 +9,7 @@ from app.models.user import User
 
 router = APIRouter(prefix="/settings", tags=["Settings"])
 
-@router.get("/")
+@router.get("")
 async def get_settings(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     return await settings_service.get_all_settings(db)
 
