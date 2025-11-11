@@ -70,7 +70,7 @@ export default function UserManagement() {
   const loadPermissions = async () => {
     try {
       const data = await getPermissions();
-      setPermissions(data);
+      setPermissions(Array.isArray(data) ? data : data.permissions || []);
     } catch (error) {
       console.error('Error loading permissions:', error);
     }
@@ -474,7 +474,7 @@ export default function UserManagement() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
                 <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3">
-                  {permissions.map((permission) => (
+                  {(Array.isArray(permissions) ? permissions : []).map((permission) => (
                     <div key={permission.id} className="flex items-center">
                       <input
                         type="checkbox"
@@ -576,7 +576,7 @@ export default function UserManagement() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {editMode ? (
-                permissions.map((permission) => {
+                (Array.isArray(permissions) ? permissions : []).map((permission) => {
                   const isSelected = editingPermissions.includes(permission.name);
                   return (
                     <div
