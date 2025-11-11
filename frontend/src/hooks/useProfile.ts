@@ -8,7 +8,7 @@ export const useProfile = () => {
     api.put(`/profile/${userId}`, data);
 
   const changePassword = (userId: string | number, currentPassword: string, newPassword: string) =>
-    api.post(`/profile/${userId}/change-password`, { current_password: currentPassword, new_password: newPassword });
+    api.post(`/profile/${userId}/change-password`, { currentPassword, newPassword });
 
   const uploadPhoto = (userId: string | number, photoUrl: string) =>
     api.post(`/profile/${userId}/photo`, { photo_url: photoUrl });

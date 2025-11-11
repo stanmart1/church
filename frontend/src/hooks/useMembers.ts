@@ -14,26 +14,26 @@ export const useMembers = () => {
       Object.entries(params || {}).filter(([_, v]) => v !== undefined && v !== '')
     );
     const query = new URLSearchParams(cleanParams as any).toString();
-    const response = await api.get(`/users${query ? `?${query}` : ''}`);
+    const response = await api.get(`/members${query ? `?${query}` : ''}`);
     const data = response.data || response;
     return Array.isArray(data) ? data.map(transformMember) : data;
   };
 
   const getMember = async (id: string) => {
-    const member = await api.get(`/users/${id}`);
+    const member = await api.get(`/members/${id}`);
     return transformMember(member);
   };
 
   const createMember = (data: any) =>
-    api.post('/users', data);
+    api.post('/members', data);
 
   const updateMember = async (id: string, data: any) => {
-    const result = await api.put(`/users/${id}`, data);
+    const result = await api.put(`/members/${id}`, data);
     return transformMember(result);
   };
 
   const deleteMember = (id: string) =>
-    api.delete(`/users/${id}`);
+    api.delete(`/members/${id}`);
 
   const exportMembers = async (format: 'csv' | 'pdf', search?: string, role?: string) => {
     const params: any = { format };
@@ -42,7 +42,7 @@ export const useMembers = () => {
     
     const query = new URLSearchParams(params).toString();
     const token = getToken();
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/export?${query}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/members/export?${query}`, {
       headers: {
         Authorization: `Bearer ${token}`
       }

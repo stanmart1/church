@@ -20,7 +20,7 @@ export const useEvents = () => {
     api.delete(`/events/${id}`);
 
   const registerForEvent = (id: string | number, memberId: string | number) =>
-    api.post(`/events/${id}/register`, { member_id: memberId });
+    api.post(`/events/${id}/register`, { memberId });
 
   const unregisterFromEvent = (id: string | number, memberId: string | number) =>
     api.delete(`/events/${id}/register/${memberId}`);
