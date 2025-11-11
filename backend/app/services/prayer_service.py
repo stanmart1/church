@@ -35,7 +35,10 @@ async def get_prayer_request(db: AsyncSession, prayer_id: str):
     return prayer
 
 async def create_prayer_request(db: AsyncSession, data: PrayerRequestCreate, member_id: str = None):
-    prayer = PrayerRequest(**data.model_dump(), member_id=member_id)
+    prayer_data = data.model_dump()
+    if member_id:
+        prayer_data['member_id'] = member_id
+    prayer = PrayerRequest(**prayer_data)
     db.add(prayer)
     await db.commit()
     await db.refresh(prayer)
