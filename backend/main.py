@@ -1,0 +1,65 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
+import asyncio
+from app.core.config import settings
+from app.core.database import engine
+from app.middleware.security import SecurityHeadersMiddleware
+from app.routes import (
+    auth, sermons, events, members, livestreams, prayers,
+    announcements, giving, dashboard, content, settings as settings_route,
+    forms, playlists, health, websocket
+)
+from app.websocket.handlers import stats_broadcast_task, heartbeat_task, cleanup_task
+from app.services.token_blacklist_service import cleanup_expired_tokens
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    asyncio.create_task(cleanup_expired_tokens())
+    asyncio.create_task(heartbeat_task())
+    asyncio.create_task(cleanup_task())
+    print(f"Server running on port {settings.PORT}")
+    print("WebSocket server ready")
+    yield
+    # Shutdown
+    await engine.dispose()
+    print("Graceful shutdown completed")
+
+app = FastAPI(
+    title="Church Management API",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.FRONTEND_URL] if settings.FRONTEND_URL else ["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"]
+)
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+@app.get("/")
+async def root():
+    return {"status": "ok", "message": "Church API is running"}
+
+app.include_router(health.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
+app.include_router(dashboard.router, prefix="/api")
+app.include_router(members.router, prefix="/api")
+app.include_router(sermons.router, prefix="/api")
+app.include_router(events.router, prefix="/api")
+app.include_router(announcements.router, prefix="/api")
+app.include_router(forms.router, prefix="/api")
+app.include_router(playlists.router, prefix="/api")
+app.include_router(livestreams.router, prefix="/api")
+app.include_router(giving.router, prefix="/api")
+app.include_router(prayers.router, prefix="/api")
+app.include_router(content.router, prefix="/api")
+app.include_router(settings_route.router, prefix="/api")
+app.include_router(websocket.router)
