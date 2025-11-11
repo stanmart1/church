@@ -17,8 +17,9 @@ export default function ProfileSettings() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    if (user?.id) {
-      getProfile(user.id)
+    const userId = (user as any)?.userId || user?.id;
+    if (userId) {
+      getProfile(userId)
         .then(data => {
           setFormData(data);
         })
@@ -28,6 +29,8 @@ export default function ProfileSettings() {
         .finally(() => {
           setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -40,8 +43,9 @@ export default function ProfileSettings() {
 
   const handleSave = async () => {
     if (!user) return;
+    const userId = (user as any)?.userId || user?.id;
     try {
-      await updateProfile(user.id, formData);
+      await updateProfile(userId, formData);
       setIsEditing(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
@@ -53,6 +57,7 @@ export default function ProfileSettings() {
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user || !e.target.files?.[0]) return;
     const file = e.target.files[0];
+    const userId = (user as any)?.userId || user?.id;
     
     // Create a temporary URL for preview
     const photoUrl = URL.createObjectURL(file);
@@ -60,7 +65,7 @@ export default function ProfileSettings() {
     try {
       // In production, upload to cloud storage and get URL
       // For now, using the blob URL
-      await uploadPhoto(user.id, photoUrl);
+      await uploadPhoto(userId, photoUrl);
       setFormData(prev => ({ ...prev, photo_url: photoUrl }));
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);

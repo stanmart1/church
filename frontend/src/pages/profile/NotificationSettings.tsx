@@ -30,8 +30,9 @@ export default function NotificationSettings() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    if (user?.id) {
-      getNotificationPreferences(user.id)
+    const userId = (user as any)?.userId || user?.id;
+    if (userId) {
+      getNotificationPreferences(userId)
         .then(data => {
           if (data?.preferences && Object.keys(data.preferences).length > 0) {
             setSettings(data.preferences);
@@ -43,6 +44,8 @@ export default function NotificationSettings() {
         .finally(() => {
           setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -66,8 +69,9 @@ export default function NotificationSettings() {
 
   const handleSave = async () => {
     if (!user) return;
+    const userId = (user as any)?.userId || user?.id;
     try {
-      await updateNotificationPreferences(user.id, settings);
+      await updateNotificationPreferences(userId, settings);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {

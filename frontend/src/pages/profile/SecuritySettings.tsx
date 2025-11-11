@@ -25,8 +25,9 @@ export default function SecuritySettings() {
   const itemsPerPage = 5;
 
   useEffect(() => {
-    if (user?.id) {
-      api.get(`/auth/login-history/${user.id}`)
+    const userId = (user as any)?.userId || user?.id;
+    if (userId) {
+      api.get(`/auth/login-history/${userId}`)
         .then(data => {
           setLoginHistory(Array.isArray(data) ? data : []);
         })
@@ -36,6 +37,8 @@ export default function SecuritySettings() {
         .finally(() => {
           setLoadingHistory(false);
         });
+    } else {
+      setLoadingHistory(false);
     }
   }, [user]);
 
@@ -51,6 +54,7 @@ export default function SecuritySettings() {
     setError('');
     
     if (!user) return;
+    const userId = (user as any)?.userId || user?.id;
     
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       setError('Passwords do not match');
@@ -58,7 +62,7 @@ export default function SecuritySettings() {
     }
 
     try {
-      await changePassword(user.id, passwordForm.currentPassword, passwordForm.newPassword);
+      await changePassword(userId, passwordForm.currentPassword, passwordForm.newPassword);
       setShowPasswordForm(false);
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setShowSuccess(true);
@@ -70,9 +74,10 @@ export default function SecuritySettings() {
 
   const handleLogoutAll = async () => {
     if (!user) return;
+    const userId = (user as any)?.userId || user?.id;
     if (confirm('Are you sure you want to log out from all devices?')) {
       try {
-        await api.post(`/auth/logout-all/${user.id}`, {});
+        await api.post(`/auth/logout-all/${userId}`, {});
         alert('All devices logged out. You will be redirected to login.');
         window.location.href = '/login';
       } catch (error) {
@@ -87,8 +92,9 @@ export default function SecuritySettings() {
 
   const confirmDeleteAccount = async () => {
     if (!user || deleteConfirmText !== 'DELETE') return;
+    const userId = (user as any)?.userId || user?.id;
     try {
-      await api.delete(`/profile/${user.id}`);
+      await api.delete(`/profile/${userId}`);
       setShowDeleteConfirm(false);
       alert('Account deleted successfully.');
       window.location.href = '/login';
