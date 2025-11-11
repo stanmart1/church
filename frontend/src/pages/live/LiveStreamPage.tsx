@@ -404,14 +404,15 @@ export default function LiveStreamPage() {
                       const hours = Math.floor(durationSeconds / 3600);
                       const minutes = Math.floor((durationSeconds % 3600) / 60);
                       const seconds = durationSeconds % 60;
-                      const durationStr = `${hours}h ${minutes}m ${seconds}s`;
+                      const durationStr = durationSeconds > 0 ? `${hours}h ${minutes}m ${seconds}s` : 'N/A';
+                      const dateStr = stream.start_time ? new Date(stream.start_time).toLocaleDateString() : new Date(stream.created_at).toLocaleDateString();
                       
                       return (
                         <div key={stream.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                           <div>
                             <div className="text-sm font-medium">{stream.title}</div>
                             <div className="text-xs text-gray-500">
-                              {new Date(stream.start_time).toLocaleDateString()} • {durationStr}
+                              {dateStr} • {durationStr}
                             </div>
                           </div>
                           <div className="text-sm text-gray-500">{stream.viewers || 0} viewers</div>
