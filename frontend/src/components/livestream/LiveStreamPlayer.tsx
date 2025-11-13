@@ -67,7 +67,7 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
     if (newPlayingState && !hasJoined && streamId && user) {
       try {
         const result = await addViewer(streamId, { 
-          name: user.name || 'Anonymous', 
+          name: user.name || user.email || 'Anonymous', 
           location: 'Online', 
           user_id: user.id 
         });
@@ -86,8 +86,11 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
       if (newPlayingState) {
         try {
           await audioRef.current.play();
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error playing audio:', error);
+          if (error.name === 'NotSupportedError') {
+            alert('No audio stream available. Please ensure Butt is connected and streaming.');
+          }
           setIsPlaying(false);
         }
       } else {
