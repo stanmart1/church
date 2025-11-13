@@ -71,8 +71,8 @@ const request = async (endpoint: string, options: RequestInit = {}): Promise<any
 
       if (refreshResponse.ok) {
         const data = await refreshResponse.json();
-        setToken(data.access_token);
-        processQueue(null, data.access_token);
+        setToken(data.access_token || data.token);
+        processQueue(null, data.access_token || data.token);
         isRefreshing = false;
         return request(endpoint, options);
       } else {
@@ -91,7 +91,12 @@ const request = async (endpoint: string, options: RequestInit = {}): Promise<any
     }
   }
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    data = {};
+  }
 
   if (!response.ok) {
     throw new Error(data.error || data.detail || 'Request failed');
