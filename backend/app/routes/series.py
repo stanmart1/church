@@ -10,16 +10,16 @@ from datetime import datetime
 router = APIRouter(prefix="/series", tags=["Series"])
 
 class SeriesCreate(BaseModel):
-    title: str
+    name: str
     description: Optional[str] = None
 
 class SeriesUpdate(BaseModel):
-    title: Optional[str] = None
+    name: Optional[str] = None
     description: Optional[str] = None
 
 class SeriesResponse(BaseModel):
     id: UUID
-    title: str
+    name: str
     description: Optional[str]
     created_at: datetime
     

@@ -9,6 +9,10 @@ from app.models.user import User
 
 router = APIRouter(prefix="/members", tags=["Members"])
 
+@router.get("/export")
+async def export_members(format: str = 'csv', db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return await member_service.export_members(db, format)
+
 @router.get("")
 async def get_members(
     page: int = 1,
@@ -20,9 +24,7 @@ async def get_members(
 ):
     return await member_service.get_members(db, page, limit, search, role)
 
-@router.get("/export")
-async def export_members(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return await member_service.export_members(db)
+
 
 @router.get("/{member_id}", response_model=MemberResponse)
 async def get_member(member_id: str, db: AsyncSession = Depends(get_db)):

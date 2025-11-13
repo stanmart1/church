@@ -1,5 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
+from fastapi.responses import StreamingResponse
+import csv
+import io
 from app.models.user import User
 from app.schemas.user import UserUpdate
 from app.utils.pagination import format_pagination_response
@@ -52,3 +55,30 @@ async def delete_member(db: AsyncSession, member_id: str):
     member = await get_member(db, member_id)
     await db.delete(member)
     await db.commit()
+
+async def export_members(db: AsyncSession, format: str = 'csv'):
+    result = await db.execute(select(User).order_by(User.created_at.desc()))
+    members = result.scalars().all()
+    
+    if format == 'csv':
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['Name', 'Email', 'Phone', 'Role', 'Status', 'Created At'])
+        for member in members:
+            writer.writerow([member.name, member.email, member.phone or '', member.role, member.status, member.created_at])
+        output.seek(0)
+        return StreamingResponse(iter([output.getvalue()]), media_type='text/csv', headers={'Content-Disposition': 'attachment; filename=members.csv'})
+    else:
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+        from reportlab.lib import colors
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        data = [['Name', 'Email', 'Phone', 'Role', 'Status', 'Created At']]
+        for member in members:
+            data.append([member.name, member.email, member.phone or '', member.role, member.status, str(member.created_at)])
+        table = Table(data)
+        table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey), ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke), ('ALIGN', (0, 0), (-1, -1), 'CENTER'), ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
+        doc.build([table])
+        buffer.seek(0)
+        return StreamingResponse(iter([buffer.getvalue()]), media_type='application/pdf', headers={'Content-Disposition': 'attachment; filename=members.pdf'})
