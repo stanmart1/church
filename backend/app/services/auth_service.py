@@ -98,7 +98,14 @@ async def create_user(db: AsyncSession, data):
     if result.scalar_one_or_none():
         raise ConflictException("Email already exists")
     hashed_password = hash_password(data.password)
-    user = User(name=data.name, email=data.email, password=hashed_password, phone=data.phone, role=data.role if hasattr(data, 'role') else 'member')
+    user = User(
+        name=data.name, 
+        email=data.email, 
+        password=hashed_password, 
+        phone=data.phone, 
+        role=data.role,
+        status=data.status
+    )
     db.add(user)
     await db.commit()
     await db.refresh(user)
