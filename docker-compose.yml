@@ -6,13 +6,6 @@ services:
       - "8001:8000"
     env_file:
       - .env.docker
-    environment:
-      ICECAST_SOURCE_PASSWORD: ${ICECAST_SOURCE_PASSWORD}
-      ICECAST_ADMIN_PASSWORD: ${ICECAST_ADMIN_PASSWORD}
-      ICECAST_RELAY_PASSWORD: ${ICECAST_RELAY_PASSWORD}
-      ICECAST_HOSTNAME: ${ICECAST_HOSTNAME}
-      ICECAST_MAX_CLIENTS: ${ICECAST_MAX_CLIENTS}
-      ICECAST_MAX_SOURCES: ${ICECAST_MAX_SOURCES}
     volumes:
       - icecast-logs:/var/log/icecast2
     restart: unless-stopped
