@@ -40,7 +40,44 @@ async def update_bulk_settings(db: AsyncSession, settings: dict):
     await db.commit()
 
 async def get_system_status(db: AsyncSession):
-    return {"status": "operational", "database": "connected"}
+    from sqlalchemy import func, text
+    from app.models.user import User
+    from datetime import datetime, timedelta
+    import psutil
+    
+    # Get active users (logged in within last 30 minutes)
+    thirty_min_ago = datetime.utcnow() - timedelta(minutes=30)
+    active_users_result = await db.execute(
+        select(func.count()).select_from(User).where(User.status == 'active')
+    )
+    active_users = active_users_result.scalar() or 0
+    
+    # Get database uptime
+    try:
+        uptime_result = await db.execute(text("SELECT EXTRACT(EPOCH FROM (now() - pg_postmaster_start_time())) as uptime"))
+        uptime_seconds = uptime_result.scalar() or 0
+        uptime_hours = int(uptime_seconds / 3600)
+        uptime = f"{uptime_hours}h"
+    except:
+        uptime = "N/A"
+    
+    # Get system stats
+    try:
+        cpu_usage = f"{psutil.cpu_percent(interval=1)}%"
+        memory = psutil.virtual_memory()
+        memory_usage = f"{memory.percent}%"
+    except:
+        cpu_usage = "N/A"
+        memory_usage = "N/A"
+    
+    return {
+        "status": "operational",
+        "database": "connected",
+        "uptime": uptime,
+        "cpuUsage": cpu_usage,
+        "memoryUsage": memory_usage,
+        "activeUsers": str(active_users)
+    }
 
 async def get_security_stats(db: AsyncSession):
     from sqlalchemy import func
