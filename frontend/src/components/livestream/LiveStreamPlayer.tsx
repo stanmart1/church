@@ -66,7 +66,11 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
     
     if (newPlayingState && !hasJoined && streamId && user) {
       try {
-        const result = await addViewer(streamId, { name: user.name, location: 'Online', user_id: user.id });
+        const result = await addViewer(streamId, { 
+          name: user.name || 'Anonymous', 
+          location: 'Online', 
+          user_id: user.id 
+        });
         setHasJoined(true);
         if (result?.id) {
           (window as any).currentViewerId = result.id;
