@@ -15,4 +15,5 @@ class RegisterRequest(BaseModel):
 
 class TokenResponse(BaseModel):
     token: str
+    refresh_token: str
     user: UserResponse

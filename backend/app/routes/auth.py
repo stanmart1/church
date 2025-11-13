@@ -25,8 +25,8 @@ async def get_me(current_user: dict = Depends(get_current_user), db: AsyncSessio
     return {"user": await auth_service.get_user(db, current_user["userId"])}
 
 @router.post("/refresh")
-async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
-    return await auth_service.refresh_token(db, refresh_token)
+async def refresh_token(data: dict, db: AsyncSession = Depends(get_db)):
+    return await auth_service.refresh_token(db, data.get("refresh_token"))
 
 @router.get("/login-history/{user_id}")
 async def get_login_history(user_id: str, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
