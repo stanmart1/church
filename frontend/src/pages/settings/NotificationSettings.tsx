@@ -15,6 +15,7 @@ export default function NotificationSettings() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  const [testingEmail, setTestingEmail] = useState(false);
   const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -68,12 +69,15 @@ export default function NotificationSettings() {
   };
 
   const handleTestNotification = async () => {
+    setTestingEmail(true);
     try {
       await testEmail(settings.resend_from_email);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Test email error:', error);
+    } finally {
+      setTestingEmail(false);
     }
   };
 
@@ -181,10 +185,11 @@ export default function NotificationSettings() {
             <div className="md:col-span-2">
               <button
                 onClick={handleTestNotification}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 cursor-pointer whitespace-nowrap"
+                disabled={testingEmail}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <i className="ri-send-plane-line mr-2"></i>
-                Test Email
+                <i className={`${testingEmail ? 'ri-loader-4-line animate-spin' : 'ri-send-plane-line'} mr-2`}></i>
+                {testingEmail ? 'Sending...' : 'Test Email'}
               </button>
             </div>
           </div>

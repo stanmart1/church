@@ -45,7 +45,7 @@ async def send_email(db: AsyncSession, to: Union[str, List[str]], subject: str, 
         
         recipients = [to] if isinstance(to, str) else to
         
-        response = client.emails.send({
+        response = resend.Emails.send({
             "from": from_email,
             "to": recipients,
             "subject": subject,
