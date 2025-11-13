@@ -17,8 +17,9 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
     return await auth_service.login(db, data)
 
 @router.get("/verify")
-async def verify(current_user: dict = Depends(get_current_user)):
-    return {"user": current_user}
+async def verify(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    user = await auth_service.get_user(db, current_user["userId"])
+    return {"user": {"id": user.id, "name": user.name, "email": user.email, "role": user.role, "status": user.status}}
 
 @router.get("/me")
 async def get_me(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
