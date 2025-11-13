@@ -15,6 +15,7 @@ export default function ProfileSettings() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
     const userId = (user as any)?.userId || user?.id;
@@ -59,6 +60,7 @@ export default function ProfileSettings() {
     const file = e.target.files[0];
     const userId = (user as any)?.userId || user?.id;
     
+    setUploadingPhoto(true);
     try {
       const response = await uploadPhoto(userId, file);
       setFormData(prev => ({ ...prev, photo_url: response.photo_url }));
@@ -66,6 +68,8 @@ export default function ProfileSettings() {
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Failed to upload photo:', error);
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -97,19 +101,24 @@ export default function ProfileSettings() {
       <div className="space-y-6">
         <div className="flex items-center space-x-6">
           <div className="flex-shrink-0">
-            <div className="h-20 w-20 rounded-full bg-blue-500 flex items-center justify-center">
-              <span className="text-white text-2xl font-semibold">{getInitials(formData.name)}</span>
+            <div className="h-20 w-20 rounded-full bg-blue-500 flex items-center justify-center relative">
+              {uploadingPhoto ? (
+                <i className="ri-loader-4-line text-white text-2xl animate-spin"></i>
+              ) : (
+                <span className="text-white text-2xl font-semibold">{getInitials(formData.name)}</span>
+              )}
             </div>
           </div>
           <div>
             <h3 className="text-lg font-medium text-gray-900">Profile Photo</h3>
             <p className="text-sm text-gray-500">Update your profile picture</p>
-            <label className="mt-2 inline-block bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer">
-              Change Photo
+            <label className={`mt-2 inline-block bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${uploadingPhoto ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+              {uploadingPhoto ? 'Uploading...' : 'Change Photo'}
               <input
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoUpload}
+                disabled={uploadingPhoto}
                 className="hidden"
               />
             </label>
