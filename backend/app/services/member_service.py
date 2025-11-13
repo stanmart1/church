@@ -7,6 +7,7 @@ from app.models.user import User
 from app.schemas.user import UserUpdate
 from app.utils.pagination import format_pagination_response
 from app.core.exceptions import NotFoundException
+from app.utils.pdf_export import generate_pdf_report
 
 async def get_members(db: AsyncSession, page: int, limit: int, search: str = None, role: str = None):
     offset = (page - 1) * limit
@@ -69,16 +70,7 @@ async def export_members(db: AsyncSession, format: str = 'csv'):
         output.seek(0)
         return StreamingResponse(iter([output.getvalue()]), media_type='text/csv', headers={'Content-Disposition': 'attachment; filename=members.csv'})
     else:
-        from reportlab.lib.pagesizes import letter
-        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-        from reportlab.lib import colors
-        buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter)
-        data = [['Name', 'Email', 'Phone', 'Role', 'Status', 'Created At']]
-        for member in members:
-            data.append([member.name, member.email, member.phone or '', member.role, member.status, str(member.created_at)])
-        table = Table(data)
-        table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey), ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke), ('ALIGN', (0, 0), (-1, -1), 'CENTER'), ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
-        doc.build([table])
-        buffer.seek(0)
+        headers = ['Name', 'Email', 'Phone', 'Role', 'Status', 'Created At']
+        data = [[member.name, member.email, member.phone or '', member.role, member.status, str(member.created_at)] for member in members]
+        buffer = generate_pdf_report('Members Report', headers, data, 'members.pdf')
         return StreamingResponse(iter([buffer.getvalue()]), media_type='application/pdf', headers={'Content-Disposition': 'attachment; filename=members.pdf'})
