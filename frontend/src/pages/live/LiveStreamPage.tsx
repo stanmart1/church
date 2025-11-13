@@ -207,12 +207,6 @@ export default function LiveStreamPage() {
                           </div>
                           <h3 className="text-2xl font-semibold mb-2">LIVE AUDIO</h3>
                           <p className="text-gray-300 mb-4">Broadcasting to {viewerCount} listeners</p>
-                          <div className="flex items-center justify-center space-x-6 text-sm">
-                            <div className="flex items-center">
-                              <i className="ri-headphone-line mr-2"></i>
-                              {streamSettings.quality === 'high' ? 'High Quality (128kbps)' : streamSettings.quality === 'standard' ? 'Standard (96kbps)' : 'Low Bandwidth (64kbps)'}
-                            </div>
-                          </div>
                         </div>
                       </div>
                     ) : (
@@ -221,12 +215,6 @@ export default function LiveStreamPage() {
                           <i className="ri-mic-off-line text-5xl mb-6"></i>
                           <h3 className="text-2xl font-semibold mb-2">Audio Stream Offline</h3>
                           <p className="mb-4">Ready to broadcast live audio to your congregation</p>
-                          <div className="flex items-center justify-center space-x-6 text-sm">
-                            <div className="flex items-center">
-                              <i className="ri-headphone-line mr-2"></i>
-                              {streamSettings.quality === 'high' ? 'High Quality (128kbps)' : streamSettings.quality === 'standard' ? 'Standard (96kbps)' : 'Low Bandwidth (64kbps)'}
-                            </div>
-                          </div>
                         </div>
                       </div>
                     )}
@@ -291,11 +279,18 @@ export default function LiveStreamPage() {
                         onClick={async () => {
                           if (currentStreamId) {
                             try {
-                              await updateLivestream(currentStreamId, {
-                                title: streamSettings.title,
-                                description: streamSettings.description
+                              await fetch(`${import.meta.env.VITE_API_URL}/livestreams/${currentStreamId}/update-metadata`, {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                },
+                                body: JSON.stringify({
+                                  title: streamSettings.title,
+                                  description: streamSettings.description
+                                })
                               });
-                              alert('Stream settings updated!');
+                              alert('Stream title updated!');
                             } catch (error) {
                               console.error('Error updating stream:', error);
                               alert('Failed to update stream settings');
@@ -304,7 +299,7 @@ export default function LiveStreamPage() {
                         }}
                         className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm cursor-pointer"
                       >
-                        Save Changes
+                        Update Title
                       </button>
                     )}
                   </div>
