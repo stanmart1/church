@@ -1,4 +1,4 @@
-from resend import Resend
+import resend
 from typing import List, Union
 from pathlib import Path
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,7 +30,8 @@ async def initialize_resend(db: AsyncSession):
     if not api_key:
         raise Exception('Resend API key not configured')
     
-    client = Resend(api_key)
+    resend.api_key = api_key
+    client = resend
     from_email = config.get('resend_from_email') or settings.RESEND_FROM_EMAIL
     
     return {"client": client, "from_email": from_email}

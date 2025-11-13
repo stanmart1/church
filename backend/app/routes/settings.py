@@ -35,8 +35,8 @@ async def mark_notification_read(notification_id: str, db: AsyncSession = Depend
     return {"message": "Notification marked as read"}
 
 @router.post("/notifications/test-email")
-async def test_email(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
-    await settings_service.test_email(db, current_user.email)
+async def test_email(db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    await settings_service.test_email(db, current_user["email"])
     return {"message": "Test email sent"}
 
 @router.get("/{key}")
