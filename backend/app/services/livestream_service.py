@@ -111,16 +111,29 @@ async def add_viewer(db: AsyncSession, livestream_id: str, data: dict):
 async def remove_viewer(db: AsyncSession, viewer_id: str):
     from sqlalchemy import delete
     from app.models.stream import StreamViewer
+    result = await db.execute(select(StreamViewer).where(StreamViewer.id == int(viewer_id)))
+    viewer = result.scalar_one_or_none()
+    user_id = str(viewer.user_id) if viewer and viewer.user_id else None
+    
     await db.execute(delete(StreamViewer).where(StreamViewer.id == int(viewer_id)))
     await db.commit()
+    
+    if user_id:
+        from app.websocket.handlers import broadcast_viewer_kicked
+        await broadcast_viewer_kicked(user_id)
 
 async def ban_viewer(db: AsyncSession, viewer_id: str):
     from app.models.stream import StreamViewer
     result = await db.execute(select(StreamViewer).where(StreamViewer.id == int(viewer_id)))
     viewer = result.scalar_one_or_none()
     if viewer:
+        user_id = str(viewer.user_id) if viewer.user_id else None
         viewer.status = 'kicked'
         await db.commit()
+        
+        if user_id:
+            from app.websocket.handlers import broadcast_viewer_kicked
+            await broadcast_viewer_kicked(user_id)
 
 async def unban_viewer(db: AsyncSession, viewer_id: str):
     from app.models.stream import StreamViewer
@@ -134,12 +147,16 @@ async def bulk_viewer_action(db: AsyncSession, data: dict):
     from app.models.stream import StreamViewer
     action = data.get('action')
     viewer_ids = data.get('viewer_ids', [])
-    if action == 'kick':
-        await db.execute(
-            select(StreamViewer).where(StreamViewer.id.in_(viewer_ids))
-        )
+    
+    if action == 'disconnect':
         for viewer_id in viewer_ids:
-            await ban_viewer(db, viewer_id)
+            await remove_viewer(db, str(viewer_id))
+    elif action == 'ban':
+        for viewer_id in viewer_ids:
+            await ban_viewer(db, str(viewer_id))
+    
+    from app.websocket.handlers import broadcast_viewers_update
+    await broadcast_viewers_update()
 
 async def get_stream_stats(db: AsyncSession, livestream_id: str):
     from app.models.stream import StreamViewer

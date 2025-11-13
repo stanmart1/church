@@ -113,7 +113,7 @@ export default function ViewersList({ streamId, onToggleChat, showChat }: Viewer
   };
 
   const activeViewers = viewerList.filter(v => v.status === 'active');
-  const bannedViewers = viewerList.filter(v => v.status === 'banned');
+  const bannedViewers = viewerList.filter(v => v.status === 'kicked');
 
   return (
     <>
