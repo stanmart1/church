@@ -50,6 +50,20 @@ export default function NotificationSettings() {
     }
   };
 
+  const formatTimeAgo = (timestamp: string) => {
+    const now = new Date();
+    const created = new Date(timestamp);
+    const diffMs = now.getTime() - created.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hrs ago`;
+    return `${diffDays} days ago`;
+  };
+
   const handleToggle = (setting: 'emailEnabled' | 'pushEnabled') => {
     setSettings(prev => ({
       ...prev,
@@ -206,7 +220,7 @@ export default function NotificationSettings() {
                   <p className="text-sm text-gray-600">{notification.message}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">{notification.time || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">{notification.created_at ? formatTimeAgo(notification.created_at) : 'N/A'}</p>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                     notification.status === 'sent' 
                       ? 'bg-green-100 text-green-800' 
