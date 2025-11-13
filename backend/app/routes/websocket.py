@@ -19,7 +19,6 @@ async def websocket_root(websocket: WebSocket):
 async def audio_stream_endpoint(websocket: WebSocket, stream_id: str):
     from app.services.icecast_service import icecast_service
     await websocket.accept()
-    await icecast_service.start_stream(stream_id)
     
     try:
         while True:

@@ -25,11 +25,11 @@ async def token_cleanup_task():
 
 async def stats_task():
     while True:
-        async with AsyncSessionLocal() as db:
-            try:
+        try:
+            async with AsyncSessionLocal() as db:
                 await stats_broadcast_task(db)
-            except Exception as e:
-                print(f"Stats broadcast error: {e}")
+        except Exception as e:
+            print(f"Stats broadcast error: {e}")
         await asyncio.sleep(2)
 
 @asynccontextmanager
