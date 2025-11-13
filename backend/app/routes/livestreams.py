@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.deps import get_current_user
@@ -84,3 +84,14 @@ async def get_source_url(livestream_id: str, db: AsyncSession = Depends(get_db),
 async def check_icecast_status(current_user: dict = Depends(get_current_user)):
     is_connected = await icecast_service.check_connection()
     return {"connected": is_connected, "stream_url": icecast_service.get_stream_url()}
+
+@router.post("/{livestream_id}/relay-audio")
+async def relay_audio(livestream_id: str, request: Request, current_user: dict = Depends(get_current_user)):
+    import httpx
+    audio_data = await request.body()
+    source_url = icecast_service.get_source_url()
+    
+    async with httpx.AsyncClient() as client:
+        await client.put(source_url, content=audio_data, headers={"Content-Type": "audio/mpeg"}, timeout=30.0)
+    
+    return {"status": "relayed", "bytes": len(audio_data)}
