@@ -23,25 +23,8 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
 
   useEffect(() => {
     if (isLive && streamId && audioRef.current) {
-      const streamUrl = `/uploads/streams/${streamId}/playlist.m3u8`;
-      const fullUrl = `${import.meta.env.VITE_API_URL?.replace('/api', '')}${streamUrl}`;
-      
-      if (Hls.isSupported()) {
-        const hls = new Hls({
-          enableWorker: true,
-          lowLatencyMode: true,
-          backBufferLength: 90
-        });
-        hls.loadSource(fullUrl);
-        hls.attachMedia(audioRef.current);
-        hlsRef.current = hls;
-
-        return () => {
-          hls.destroy();
-        };
-      } else if (audioRef.current.canPlayType('application/vnd.apple.mpegurl')) {
-        audioRef.current.src = fullUrl;
-      }
+      const icecastUrl = `http://localhost:8000/live`;
+      audioRef.current.src = icecastUrl;
     }
   }, [isLive, streamId]);
 

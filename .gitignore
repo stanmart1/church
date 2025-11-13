@@ -50,3 +50,5 @@ coverage/
 
 #file uploads
 backend/uploads
+# Docker
+.env.docker

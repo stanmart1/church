@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  icecast:
+    image: moul/icecast
+    container_name: church-icecast
+    ports:
+      - "8000:8000"
+    environment:
+      ICECAST_SOURCE_PASSWORD: ${ICECAST_SOURCE_PASSWORD:-churchsource123}
+      ICECAST_ADMIN_PASSWORD: ${ICECAST_ADMIN_PASSWORD:-churchadmin123}
+      ICECAST_RELAY_PASSWORD: ${ICECAST_RELAY_PASSWORD:-churchrelay123}
+      ICECAST_HOSTNAME: ${ICECAST_HOSTNAME:-localhost}
+      ICECAST_MAX_CLIENTS: ${ICECAST_MAX_CLIENTS:-1000}
+      ICECAST_MAX_SOURCES: ${ICECAST_MAX_SOURCES:-5}
+    volumes:
+      - ./icecast-config:/etc/icecast2
+      - icecast-logs:/var/log/icecast2
+    restart: unless-stopped
+    networks:
+      - church-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: church-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-church_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - church-network
+
+volumes:
+  postgres-data:
+  icecast-logs:
+
+networks:
+  church-network:
+    driver: bridge

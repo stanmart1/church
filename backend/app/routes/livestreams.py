@@ -5,6 +5,7 @@ from app.core.deps import get_current_user
 from app.schemas.livestream import LivestreamCreate, LivestreamUpdate, LivestreamResponse
 from typing import Dict
 from app.services import livestream_service
+from app.services.icecast_service import icecast_service
 from app.models.user import User
 
 router = APIRouter(prefix="/livestreams", tags=["Livestreams"])
@@ -71,6 +72,15 @@ async def bulk_viewer_action(livestream_id: str, data: dict, db: AsyncSession = 
 async def get_stream_stats(livestream_id: str, db: AsyncSession = Depends(get_db)):
     return await livestream_service.get_stream_stats(db, livestream_id)
 
-@router.post("/stream")
-async def stream_audio(data: dict, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    return await livestream_service.stream_audio(db, data)
+@router.get("/{livestream_id}/icecast-url")
+async def get_icecast_url(livestream_id: str, db: AsyncSession = Depends(get_db)):
+    return {"stream_url": icecast_service.get_stream_url()}
+
+@router.get("/{livestream_id}/source-url")
+async def get_source_url(livestream_id: str, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    return {"source_url": icecast_service.get_source_url()}
+
+@router.get("/icecast/status")
+async def check_icecast_status(current_user: dict = Depends(get_current_user)):
+    is_connected = await icecast_service.check_connection()
+    return {"connected": is_connected, "stream_url": icecast_service.get_stream_url()}
