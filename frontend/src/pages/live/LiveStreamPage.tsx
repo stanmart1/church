@@ -216,6 +216,13 @@ export default function LiveStreamPage() {
                           <h3 className="text-2xl font-semibold mb-2">Audio Stream Offline</h3>
                           <p className="mb-4">Ready to broadcast live audio to your congregation</p>
                         </div>
+                        <button
+                          onClick={() => setShowChat(!showChat)}
+                          className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm text-white p-3 rounded-lg hover:bg-black/70 transition-colors"
+                          title={showChat ? 'Hide Chat' : 'Show Chat'}
+                        >
+                          <i className={`${showChat ? 'ri-chat-3-fill' : 'ri-chat-3-line'} text-xl`}></i>
+                        </button>
                       </div>
                     )}
                     

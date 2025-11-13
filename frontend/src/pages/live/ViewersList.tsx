@@ -127,14 +127,6 @@ export default function ViewersList({ streamId, onToggleChat, showChat }: Viewer
               {selectedViewers.size > 0 && ` • ${selectedViewers.size} selected`}
             </p>
           </div>
-          {onToggleChat && (
-            <button
-              onClick={onToggleChat}
-              className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
-            >
-              {showChat ? 'Hide Chat' : 'Show Chat'}
-            </button>
-          )}
         </div>
         {selectedViewers.size > 0 && (
           <div className="mt-3 flex items-center gap-2">
