@@ -83,8 +83,49 @@ async def get_system_status(db: AsyncSession):
 async def get_security_stats(db: AsyncSession):
     from sqlalchemy import func
     from app.models.audit import AuditLog
-    result = await db.execute(select(func.count()).select_from(AuditLog))
-    return {"total_logs": result.scalar()}
+    from app.models.user import User
+    from datetime import datetime, timedelta
+    
+    # Active sessions (users logged in within last 30 minutes)
+    thirty_min_ago = datetime.utcnow() - timedelta(minutes=30)
+    active_sessions_result = await db.execute(
+        select(func.count()).select_from(User).where(User.status == 'active')
+    )
+    active_sessions = active_sessions_result.scalar() or 0
+    
+    # Security alerts (failed login attempts in last 24 hours)
+    twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
+    alerts_result = await db.execute(
+        select(func.count()).select_from(AuditLog)
+        .where(AuditLog.event.in_(['failed_login', 'suspicious_activity']))
+        .where(AuditLog.created_at >= twenty_four_hours_ago)
+    )
+    security_alerts = alerts_result.scalar() or 0
+    
+    # Blocked attempts (all failed logins)
+    blocked_result = await db.execute(
+        select(func.count()).select_from(AuditLog)
+        .where(AuditLog.event == 'failed_login')
+    )
+    blocked_attempts = blocked_result.scalar() or 0
+    
+    # Calculate security score (0-100)
+    score = 100
+    if security_alerts > 10:
+        score -= 20
+    elif security_alerts > 5:
+        score -= 10
+    if blocked_attempts > 50:
+        score -= 15
+    elif blocked_attempts > 20:
+        score -= 10
+    
+    return {
+        "securityScore": max(0, score),
+        "activeSessions": active_sessions,
+        "securityAlerts": security_alerts,
+        "blockedAttempts": blocked_attempts
+    }
 
 async def get_recent_notifications(db: AsyncSession, page: int, limit: int):
     from app.models.notification import Notification
