@@ -69,6 +69,7 @@ export default function StreamControls({ isLive, onToggleLive, loading, onAudioL
     channels: 2,
     codec: 'audio/webm;codecs=opus'
   });
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
   useEffect(() => {
     if (shouldResumeAudio && isLive && !audioContext) {
@@ -194,6 +195,28 @@ export default function StreamControls({ isLive, onToggleLive, loading, onAudioL
         
         setAudioContext(ctx);
         setGainNode(gain);
+        
+        const recorder = new MediaRecorder(dest.stream, {
+          mimeType: 'audio/webm;codecs=opus',
+          audioBitsPerSecond: audioSettings.bitrate
+        });
+        
+        recorder.ondataavailable = async (event) => {
+          if (event.data.size > 0 && currentStreamId) {
+            try {
+              await fetch(`${import.meta.env.VITE_API_URL}/livestreams/${currentStreamId}/relay-audio`, {
+                method: 'POST',
+                body: event.data,
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+              });
+            } catch (error) {
+              console.error('Error relaying audio:', error);
+            }
+          }
+        };
+        
+        recorder.start(1000);
+        setMediaRecorder(recorder);
         onToggleLive(true);
       } catch (error) {
         console.error('Error accessing microphone:', error);
@@ -201,6 +224,10 @@ export default function StreamControls({ isLive, onToggleLive, loading, onAudioL
         return;
       }
     } else {
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+        setMediaRecorder(null);
+      }
       if (audioContext) {
         audioContext.close();
         setAudioContext(null);
