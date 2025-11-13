@@ -41,6 +41,7 @@ export default function LiveStreamPage() {
   const [selectedOutputDevice, setSelectedOutputDevice] = useState<string>('');
   const [audioDeviceLoading, setAudioDeviceLoading] = useState(false);
   const [showChat, setShowChat] = useState(true);
+  const [showInstructions, setShowInstructions] = useState(true);
 
   useEffect(() => {
     loadCurrentStream();
@@ -273,25 +274,34 @@ export default function LiveStreamPage() {
                   
                   <div className="p-6 border-t border-gray-200">
                     <div className="flex items-center justify-between mb-6">
-                      {!isLive ? (
+                      <div className="flex items-center gap-3">
+                        {!isLive ? (
+                          <button
+                            onClick={() => handleToggleLive(true)}
+                            disabled={loading}
+                            className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
+                          >
+                            <i className="ri-play-line mr-2 text-lg"></i>
+                            {loading ? 'Starting...' : 'Start Stream Session'}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleToggleLive(false)}
+                            disabled={loading}
+                            className="flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 cursor-pointer"
+                          >
+                            <i className="ri-stop-line mr-2 text-lg"></i>
+                            {loading ? 'Ending...' : 'End Stream Session'}
+                          </button>
+                        )}
                         <button
-                          onClick={() => handleToggleLive(true)}
-                          disabled={loading}
-                          className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
+                          onClick={() => setShowInstructions(!showInstructions)}
+                          className="flex items-center px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 cursor-pointer"
                         >
-                          <i className="ri-play-line mr-2 text-lg"></i>
-                          {loading ? 'Starting...' : 'Start Stream Session'}
+                          <i className={`${showInstructions ? 'ri-eye-off-line' : 'ri-eye-line'} mr-2 text-lg`}></i>
+                          {showInstructions ? 'Hide' : 'Show'} Instructions
                         </button>
-                      ) : (
-                        <button
-                          onClick={() => handleToggleLive(false)}
-                          disabled={loading}
-                          className="flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 cursor-pointer"
-                        >
-                          <i className="ri-stop-line mr-2 text-lg"></i>
-                          {loading ? 'Ending...' : 'End Stream Session'}
-                        </button>
-                      )}
+                      </div>
                       {isLive && (
                         <div className="flex items-center space-x-2 text-sm text-white bg-red-600 px-4 py-2 rounded-lg">
                           <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
@@ -299,9 +309,11 @@ export default function LiveStreamPage() {
                         </div>
                       )}
                     </div>
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <ButtInstructions />
-                    </Suspense>
+                    {showInstructions && (
+                      <Suspense fallback={<LoadingSpinner />}>
+                        <ButtInstructions />
+                      </Suspense>
+                    )}
                   </div>
                 </div>
 
