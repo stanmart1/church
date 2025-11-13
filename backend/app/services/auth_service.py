@@ -64,7 +64,7 @@ async def logout_all(db: AsyncSession, user_id: str):
 async def get_login_history(db: AsyncSession, user_id: str):
     from app.models.audit import AuditLog
     result = await db.execute(
-        select(AuditLog).where(AuditLog.user_id == user_id).where(AuditLog.action == "login").order_by(AuditLog.created_at.desc()).limit(50)
+        select(AuditLog).where(AuditLog.user_id == user_id).where(AuditLog.event == "login").order_by(AuditLog.created_at.desc()).limit(50)
     )
     return result.scalars().all()
 
