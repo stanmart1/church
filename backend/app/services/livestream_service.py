@@ -1,5 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, delete
+from datetime import datetime
+from app.models.stream import StreamViewer
 from app.models.livestream import Livestream, ChatMessage
 from app.schemas.livestream import LivestreamCreate, LivestreamUpdate
 from app.core.exceptions import NotFoundException
@@ -46,9 +48,6 @@ async def start_livestream(db: AsyncSession, livestream_id: str):
     return livestream
 
 async def stop_livestream(db: AsyncSession, livestream_id: str):
-    from datetime import datetime
-    from sqlalchemy import delete
-    from app.models.stream import StreamViewer
     
     livestream = await get_livestream(db, livestream_id)
     livestream.is_live = False
@@ -71,7 +70,6 @@ async def get_chat_messages(db: AsyncSession, livestream_id: str, limit: int = 5
     return result.scalars().all()
 
 async def delete_chat_message(db: AsyncSession, message_id: str):
-    from sqlalchemy import delete
     await db.execute(delete(ChatMessage).where(ChatMessage.id == message_id))
     await db.commit()
 
@@ -99,12 +97,12 @@ async def add_viewer(db: AsyncSession, livestream_id: str, data: dict):
 async def remove_viewer(db: AsyncSession, viewer_id: str):
     from sqlalchemy import delete
     from app.models.stream import StreamViewer
-    await db.execute(delete(StreamViewer).where(StreamViewer.id == viewer_id))
+    await db.execute(delete(StreamViewer).where(StreamViewer.id == int(viewer_id)))
     await db.commit()
 
 async def ban_viewer(db: AsyncSession, viewer_id: str):
     from app.models.stream import StreamViewer
-    result = await db.execute(select(StreamViewer).where(StreamViewer.id == viewer_id))
+    result = await db.execute(select(StreamViewer).where(StreamViewer.id == int(viewer_id)))
     viewer = result.scalar_one_or_none()
     if viewer:
         viewer.status = 'kicked'
@@ -112,7 +110,7 @@ async def ban_viewer(db: AsyncSession, viewer_id: str):
 
 async def unban_viewer(db: AsyncSession, viewer_id: str):
     from app.models.stream import StreamViewer
-    result = await db.execute(select(StreamViewer).where(StreamViewer.id == viewer_id))
+    result = await db.execute(select(StreamViewer).where(StreamViewer.id == int(viewer_id)))
     viewer = result.scalar_one_or_none()
     if viewer:
         viewer.status = 'active'
