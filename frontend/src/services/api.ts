@@ -23,7 +23,7 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-const request = async (endpoint: string, options: RequestInit = {}) => {
+const request = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
   const token = getToken();
   const isFormData = options.body instanceof FormData;
   
