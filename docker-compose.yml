@@ -4,6 +4,8 @@ services:
     container_name: church-icecast
     ports:
       - "8001:8000"
+    env_file:
+      - .env.docker
     environment:
       ICECAST_SOURCE_PASSWORD: ${ICECAST_SOURCE_PASSWORD}
       ICECAST_ADMIN_PASSWORD: ${ICECAST_ADMIN_PASSWORD}
