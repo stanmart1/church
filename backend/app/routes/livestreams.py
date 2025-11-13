@@ -87,11 +87,11 @@ async def check_icecast_status(current_user: dict = Depends(get_current_user)):
 
 @router.post("/{livestream_id}/relay-audio")
 async def relay_audio(livestream_id: str, request: Request, current_user: dict = Depends(get_current_user)):
-    import httpx
     audio_data = await request.body()
-    source_url = icecast_service.get_source_url()
-    
-    async with httpx.AsyncClient() as client:
-        await client.put(source_url, content=audio_data, headers={"Content-Type": "audio/mpeg"}, timeout=30.0)
-    
+    await icecast_service.send_audio_chunk(livestream_id, audio_data)
     return {"status": "relayed", "bytes": len(audio_data)}
+
+@router.post("/{livestream_id}/stop-relay")
+async def stop_relay(livestream_id: str, current_user: dict = Depends(get_current_user)):
+    await icecast_service.stop_stream(livestream_id)
+    return {"status": "stopped"}
