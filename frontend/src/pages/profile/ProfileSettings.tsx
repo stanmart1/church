@@ -59,14 +59,9 @@ export default function ProfileSettings() {
     const file = e.target.files[0];
     const userId = (user as any)?.userId || user?.id;
     
-    // Create a temporary URL for preview
-    const photoUrl = URL.createObjectURL(file);
-    
     try {
-      // In production, upload to cloud storage and get URL
-      // For now, using the blob URL
-      await uploadPhoto(userId, photoUrl);
-      setFormData(prev => ({ ...prev, photo_url: photoUrl }));
+      const response = await uploadPhoto(userId, file);
+      setFormData(prev => ({ ...prev, photo_url: response.photo_url }));
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {

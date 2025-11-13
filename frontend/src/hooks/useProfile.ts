@@ -10,8 +10,13 @@ export const useProfile = () => {
   const changePassword = (userId: string | number, currentPassword: string, newPassword: string) =>
     api.post(`/profile/${userId}/change-password`, { currentPassword, newPassword });
 
-  const uploadPhoto = (userId: string | number, photoUrl: string) =>
-    api.post(`/profile/${userId}/photo`, { photo_url: photoUrl });
+  const uploadPhoto = (userId: string | number, file: File) => {
+    const formData = new FormData();
+    formData.append('photo', file);
+    return api.post(`/profile/${userId}/photo`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  };
 
   const getNotificationPreferences = (userId: string | number) =>
     api.get(`/profile/${userId}/notifications`);
