@@ -85,13 +85,4 @@ async def check_icecast_status(current_user: dict = Depends(get_current_user)):
     is_connected = await icecast_service.check_connection()
     return {"connected": is_connected, "stream_url": icecast_service.get_stream_url()}
 
-@router.post("/{livestream_id}/relay-audio")
-async def relay_audio(livestream_id: str, request: Request, current_user: dict = Depends(get_current_user)):
-    audio_data = await request.body()
-    await icecast_service.send_audio_chunk(livestream_id, audio_data)
-    return {"status": "relayed", "bytes": len(audio_data)}
 
-@router.post("/{livestream_id}/stop-relay")
-async def stop_relay(livestream_id: str, current_user: dict = Depends(get_current_user)):
-    await icecast_service.stop_stream(livestream_id)
-    return {"status": "stopped"}

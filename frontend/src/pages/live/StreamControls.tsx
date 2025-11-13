@@ -70,6 +70,7 @@ export default function StreamControls({ isLive, onToggleLive, loading, currentS
     codec: 'audio/webm;codecs=opus'
   });
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioWebSocket, setAudioWebSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     if (shouldResumeAudio && isLive && !audioContext) {
@@ -143,6 +144,10 @@ export default function StreamControls({ isLive, onToggleLive, loading, currentS
       await onToggleLive(true);
       return;
     } else {
+      if (audioWebSocket) {
+        audioWebSocket.close();
+        setAudioWebSocket(null);
+      }
       if (mediaRecorder) {
         mediaRecorder.stop();
         setMediaRecorder(null);
@@ -224,22 +229,18 @@ export default function StreamControls({ isLive, onToggleLive, loading, currentS
           audioBitsPerSecond: audioSettings.bitrate
         });
         
+        const wsUrl = `${import.meta.env.VITE_WS_URL || 'ws://localhost:8000'}/ws/audio/${currentStreamId}`;
+        const audioWs = new WebSocket(wsUrl);
+        
         recorder.ondataavailable = async (event) => {
-          if (event.data.size > 0 && currentStreamId) {
-            try {
-              await fetch(`${import.meta.env.VITE_API_URL}/livestreams/${currentStreamId}/relay-audio`, {
-                method: 'POST',
-                body: event.data,
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-              });
-            } catch (error) {
-              console.error('Error relaying audio:', error);
-            }
+          if (event.data.size > 0 && audioWs.readyState === WebSocket.OPEN) {
+            audioWs.send(await event.data.arrayBuffer());
           }
         };
         
         recorder.start(1000);
         setMediaRecorder(recorder);
+        setAudioWebSocket(audioWs);
       } catch (error) {
         console.error('Error accessing microphone:', error);
         alert('Could not access microphone');

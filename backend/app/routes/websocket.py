@@ -14,3 +14,19 @@ async def websocket_endpoint(websocket: WebSocket):
 async def websocket_root(websocket: WebSocket):
     async with AsyncSessionLocal() as db:
         await handle_websocket(websocket, db)
+
+@router.websocket("/ws/audio/{stream_id}")
+async def audio_stream_endpoint(websocket: WebSocket, stream_id: str):
+    from app.services.icecast_service import icecast_service
+    await websocket.accept()
+    await icecast_service.start_stream(stream_id)
+    
+    try:
+        while True:
+            audio_data = await websocket.receive_bytes()
+            await icecast_service.send_audio_chunk(stream_id, audio_data)
+    except Exception as e:
+        print(f"Audio stream error: {e}")
+    finally:
+        await icecast_service.stop_stream(stream_id)
+        await websocket.close()
