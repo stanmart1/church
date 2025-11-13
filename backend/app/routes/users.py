@@ -9,6 +9,10 @@ from app.models.user import User
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
+@router.post("", response_model=UserResponse, status_code=201)
+async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_admin_user)):
+    return await auth_service.create_user(db, data)
+
 @router.get("/stats")
 async def get_user_stats(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_admin_user)):
     return await auth_service.get_user_stats(db)
@@ -28,10 +32,6 @@ async def get_users(
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(user_id: str, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_admin_user)):
     return await auth_service.get_user(db, user_id)
-
-@router.post("/", response_model=UserResponse, status_code=201)
-async def create_user(data: UserCreate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_admin_user)):
-    return await auth_service.create_user(db, data)
 
 @router.put("/{user_id}", response_model=UserResponse)
 async def update_user(user_id: str, data: UserUpdate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_admin_user)):
