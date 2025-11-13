@@ -5,8 +5,17 @@ from app.schemas.settings import SettingsCreate, SettingsUpdate
 from app.core.exceptions import NotFoundException
 
 async def get_all_settings(db: AsyncSession):
+    import json
     result = await db.execute(select(Settings))
-    return result.scalars().all()
+    settings = result.scalars().all()
+    # Convert to dict with parsed values
+    settings_dict = {}
+    for setting in settings:
+        try:
+            settings_dict[setting.key] = json.loads(setting.value)
+        except:
+            settings_dict[setting.key] = setting.value
+    return settings_dict
 
 async def get_setting_by_key(db: AsyncSession, key: str):
     result = await db.execute(select(Settings).where(Settings.key == key))
@@ -30,13 +39,16 @@ async def update_setting(db: AsyncSession, key: str, data: SettingsUpdate):
     return setting
 
 async def update_bulk_settings(db: AsyncSession, settings: dict):
+    import json
     for key, value in settings.items():
         result = await db.execute(select(Settings).where(Settings.key == key))
         setting = result.scalar_one_or_none()
+        # Convert value to string for storage
+        str_value = json.dumps(value) if isinstance(value, (bool, dict, list)) else str(value)
         if setting:
-            setting.value = value
+            setting.value = str_value
         else:
-            db.add(Settings(key=key, value=value))
+            db.add(Settings(key=key, value=str_value))
     await db.commit()
 
 async def get_system_status(db: AsyncSession):
