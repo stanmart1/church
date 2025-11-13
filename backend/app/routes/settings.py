@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Dict
+from typing import Dict, Any
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.schemas.settings import SettingUpdate
@@ -48,7 +48,7 @@ async def update_setting(key: str, data: SettingUpdate, db: AsyncSession = Depen
     return await settings_service.update_setting(db, key, data)
 
 @router.post("/bulk")
-async def update_bulk_settings(settings: Dict[str, str], db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def update_bulk_settings(settings: Dict[str, Any], db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     await settings_service.update_bulk_settings(db, settings)
     return {"message": "Settings updated"}
 
