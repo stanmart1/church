@@ -18,6 +18,7 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isLive && streamId && audioRef.current) {
@@ -26,6 +27,40 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
       audioRef.current.load();
     }
   }, [isLive, streamId]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !isPlaying) return;
+
+    const handleError = () => {
+      console.log('Audio error, attempting reconnect...');
+      reconnectTimeoutRef.current = setTimeout(() => {
+        if (audio && isPlaying) {
+          audio.load();
+          audio.play().catch(console.error);
+        }
+      }, 3000);
+    };
+
+    const handleStalled = () => {
+      console.log('Audio stalled, reloading...');
+      if (audio && isPlaying) {
+        audio.load();
+        audio.play().catch(console.error);
+      }
+    };
+
+    audio.addEventListener('error', handleError);
+    audio.addEventListener('stalled', handleStalled);
+
+    return () => {
+      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('stalled', handleStalled);
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+    };
+  }, [isPlaying]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -113,6 +148,19 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
       }
     }
   };
+
+  useEffect(() => {
+    const handleOnline = () => {
+      if (isPlaying && audioRef.current) {
+        console.log('Network restored, reconnecting audio...');
+        audioRef.current.load();
+        audioRef.current.play().catch(console.error);
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [isPlaying]);
 
   return (
     <div className="bg-white rounded-lg shadow">
