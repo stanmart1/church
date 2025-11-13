@@ -142,13 +142,13 @@ export default function LiveStreamPage() {
           stream_url: null
         });
         setCurrentStreamId(stream.id);
-        setIsLive(true);
         setStreamStats({
           current_viewers: 0,
           peak_viewers: 0,
           duration: 0,
           chat_messages: 0
         });
+        setIsLive(true);
       } finally {
         setLoading(false);
       }

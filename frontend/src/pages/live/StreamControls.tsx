@@ -140,8 +140,31 @@ export default function StreamControls({ isLive, onToggleLive, loading, currentS
 
   const handleGoLive = async () => {
     if (!isLive) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
+      await onToggleLive(true);
+      return;
+    } else {
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+        setMediaRecorder(null);
+      }
+      if (audioContext) {
+        audioContext.close();
+        setAudioContext(null);
+        setGainNode(null);
+      }
+      await onToggleLive(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isLive && currentStreamId && !audioContext) {
+      startStreaming();
+    }
+  }, [isLive, currentStreamId]);
+
+  const startStreaming = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
           audio: selectedInputDevice ? {
             deviceId: { exact: selectedInputDevice },
             sampleRate: audioSettings.sampleRate,
@@ -217,24 +240,10 @@ export default function StreamControls({ isLive, onToggleLive, loading, currentS
         
         recorder.start(1000);
         setMediaRecorder(recorder);
-        onToggleLive(true);
       } catch (error) {
         console.error('Error accessing microphone:', error);
         alert('Could not access microphone');
-        return;
       }
-    } else {
-      if (mediaRecorder) {
-        mediaRecorder.stop();
-        setMediaRecorder(null);
-      }
-      if (audioContext) {
-        audioContext.close();
-        setAudioContext(null);
-        setGainNode(null);
-      }
-      onToggleLive(false);
-    }
   };
 
   const handleMuteToggle = () => {
