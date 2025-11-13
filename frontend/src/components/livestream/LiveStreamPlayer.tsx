@@ -18,7 +18,7 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isLive && streamId && audioRef.current) {
