@@ -98,7 +98,14 @@ async def get_butt_config(current_user: dict = Depends(get_current_user)):
 async def update_stream_metadata(livestream_id: str, data: dict, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
     title = data.get("title", "")
     await icecast_service.update_metadata(title)
-    await livestream_service.update_livestream(db, livestream_id, data)
+    
+    livestream = await livestream_service.get_livestream(db, livestream_id)
+    if "title" in data:
+        livestream.title = data["title"]
+    if "description" in data:
+        livestream.description = data["description"]
+    await db.commit()
+    
     return {"message": "Metadata updated"}
 
 
