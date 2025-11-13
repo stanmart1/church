@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLivestream } from '@/hooks/useLivestream';
 import { useAuth } from '@/context/AuthContext';
-import Hls from 'hls.js';
 
 interface LiveStreamPlayerProps {
   isLive: boolean;
@@ -19,12 +18,12 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const hlsRef = useRef<Hls | null>(null);
 
   useEffect(() => {
     if (isLive && streamId && audioRef.current) {
       const icecastUrl = `http://localhost:8001/live`;
       audioRef.current.src = icecastUrl;
+      audioRef.current.load();
     }
   }, [isLive, streamId]);
 

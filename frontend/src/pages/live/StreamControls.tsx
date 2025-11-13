@@ -4,7 +4,7 @@ interface StreamControlsProps {
   isLive: boolean;
   onToggleLive: (live: boolean) => void;
   loading?: boolean;
-  currentStreamId?: string | null;
+  currentStreamId: string | null;
   onAudioLevelChange?: (level: number) => void;
   selectedInputDevice?: string;
   selectedOutputDevice?: string;
@@ -55,7 +55,7 @@ function ShareStreamModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   );
 }
 
-export default function StreamControls({ isLive, onToggleLive, loading, onAudioLevelChange, selectedInputDevice, selectedOutputDevice, shouldResumeAudio }: StreamControlsProps) {
+export default function StreamControls({ isLive, onToggleLive, loading, currentStreamId, onAudioLevelChange, selectedInputDevice, selectedOutputDevice, shouldResumeAudio }: StreamControlsProps) {
   const [isMuted, setIsMuted] = useState(false);
   const [inputGain, setInputGain] = useState(65);
   const [showShareModal, setShowShareModal] = useState(false);
