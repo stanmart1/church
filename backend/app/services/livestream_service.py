@@ -88,6 +88,20 @@ async def get_viewers(db: AsyncSession, livestream_id: str):
 
 async def add_viewer(db: AsyncSession, livestream_id: str, data: dict):
     from app.models.stream import StreamViewer
+    
+    # Check if user already has an active viewer session
+    if data.get('user_id'):
+        result = await db.execute(
+            select(StreamViewer).where(
+                StreamViewer.livestream_id == livestream_id,
+                StreamViewer.user_id == data['user_id'],
+                StreamViewer.status == 'active'
+            )
+        )
+        existing = result.scalar_one_or_none()
+        if existing:
+            return existing
+    
     viewer = StreamViewer(livestream_id=livestream_id, **data)
     db.add(viewer)
     await db.commit()

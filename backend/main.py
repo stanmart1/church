@@ -30,7 +30,7 @@ async def stats_task():
                 await stats_broadcast_task(db)
         except Exception as e:
             print(f"Stats broadcast error: {e}")
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
