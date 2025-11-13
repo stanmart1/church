@@ -23,6 +23,7 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
     if (isLive && streamId && audioRef.current) {
       const icecastUrl = `http://localhost:8001/live`;
       audioRef.current.src = icecastUrl;
+      audioRef.current.crossOrigin = "anonymous";
       audioRef.current.load();
     }
   }, [isLive, streamId]);
