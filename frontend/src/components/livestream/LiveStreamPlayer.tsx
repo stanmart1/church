@@ -37,7 +37,7 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
   useEffect(() => {
     if (!streamId || !isLive) return;
     
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:5001';
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
     const ws = new WebSocket(wsUrl);
     
     ws.onopen = () => {
@@ -93,7 +93,7 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
           try {
             const viewerId = (window as any).currentViewerId;
             if (viewerId) {
-              await fetch(`${import.meta.env.VITE_API_URL}/livestreams/${streamId}/viewers/${viewerId}`, {
+              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/livestreams/${streamId}/viewers/${viewerId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
               });
