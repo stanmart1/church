@@ -14,9 +14,10 @@ export default function LandingPage() {
     const loadServices = async () => {
       try {
         const data = await getServiceTimes();
-        setServices(data);
+        setServices(Array.isArray(data) ? data : data?.data || []);
       } catch (error) {
         console.error('Error loading services:', error);
+        setServices([]);
       }
     };
     loadServices();
