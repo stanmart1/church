@@ -24,6 +24,13 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
       const icecastUrl = `http://localhost:8001/live`;
       audioRef.current.src = icecastUrl;
       audioRef.current.crossOrigin = "anonymous";
+      
+      audioRef.current.onerror = (e) => {
+        console.error('Audio element error:', e);
+        console.error('Audio error code:', audioRef.current?.error?.code);
+        console.error('Audio error message:', audioRef.current?.error?.message);
+      };
+      
       audioRef.current.load();
     }
   }, [isLive, streamId]);
