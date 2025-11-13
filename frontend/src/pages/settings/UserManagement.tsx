@@ -24,6 +24,8 @@ export default function UserManagement() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{ id: number | string; name: string } | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [addingUser, setAddingUser] = useState(false);
+  const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeUsers: 0,
@@ -109,13 +111,20 @@ export default function UserManagement() {
   };
 
   const handleAddUser = async () => {
-    await createUser(newUser);
-    setShowAddUser(false);
-    setNewUser({ name: '', email: '', password: '', role: 'member', phone: '', status: 'active' });
-    loadUsers();
-    loadStats();
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+    try {
+      setAddingUser(true);
+      await createUser(newUser);
+      setShowAddUser(false);
+      setNewUser({ name: '', email: '', password: '', role: 'member', phone: '', status: 'active' });
+      loadUsers();
+      loadStats();
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error adding user:', error);
+    } finally {
+      setAddingUser(false);
+    }
   };
 
   const handleAddRole = () => {
@@ -415,30 +424,51 @@ export default function UserManagement() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input
-                  type="password"
-                  value={newUser.password}
-                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <div className="relative">
+                  <input
+                    type={showNewUserPassword ? 'text' : 'password'}
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewUserPassword(!showNewUserPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <i className={showNewUserPassword ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                 <input
-                  type="text"
+                  type="tel"
                   value={newUser.phone}
-                  onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9+\-()\s]/g, '');
+                    setNewUser({ ...newUser, phone: value });
+                  }}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="+1 (555) 123-4567"
                 />
               </div>
 
               <div className="flex space-x-3 pt-4">
                 <button
                   onClick={handleAddUser}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 cursor-pointer whitespace-nowrap"
+                  disabled={addingUser}
+                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
                 >
-                  Add User
+                  {addingUser ? (
+                    <>
+                      <i className="ri-loader-4-line mr-2 animate-spin"></i>
+                      Adding...
+                    </>
+                  ) : (
+                    'Add User'
+                  )}
                 </button>
                 <button
                   onClick={() => setShowAddUser(false)}
