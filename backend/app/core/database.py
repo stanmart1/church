@@ -8,12 +8,14 @@ engine = create_async_engine(
     DATABASE_URL, 
     echo=False, 
     pool_size=10, 
-    max_overflow=2,
+    max_overflow=5,
     pool_pre_ping=True,
-    pool_recycle=300,
+    pool_recycle=1800,
+    pool_timeout=30,
     connect_args={
         "server_settings": {"application_name": "church_app"},
         "command_timeout": 60,
+        "timeout": 10,
     }
 )
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
