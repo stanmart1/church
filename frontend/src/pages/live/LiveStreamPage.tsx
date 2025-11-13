@@ -41,7 +41,7 @@ export default function LiveStreamPage() {
   const [selectedOutputDevice, setSelectedOutputDevice] = useState<string>('');
   const [audioDeviceLoading, setAudioDeviceLoading] = useState(false);
   const [showChat, setShowChat] = useState(true);
-  const [showInstructions, setShowInstructions] = useState(true);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   useEffect(() => {
     loadCurrentStream();
@@ -363,22 +363,6 @@ export default function LiveStreamPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Audio Quality
-                      </label>
-                      <select 
-                        value={streamSettings.quality}
-                        onChange={(e) => setStreamSettings(prev => ({ ...prev, quality: e.target.value }))}
-                        className="w-full pr-8 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="high">High Quality (128kbps)</option>
-                        <option value="standard">Standard (96kbps)</option>
-                        <option value="low">Low Bandwidth (64kbps)</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="mt-4 grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Category
                       </label>
                       <select 
@@ -392,19 +376,6 @@ export default function LiveStreamPage() {
                         <option>Special Event</option>
                         <option>Youth Service</option>
                         <option>Worship Night</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Auto Record
-                      </label>
-                      <select 
-                        value={streamSettings.autoRecord ? 'yes' : 'no'}
-                        onChange={(e) => setStreamSettings(prev => ({ ...prev, autoRecord: e.target.value === 'yes' }))}
-                        className="w-full pr-8 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="yes">Yes - Save for library</option>
-                        <option value="no">No - Live only</option>
                       </select>
                     </div>
                   </div>
