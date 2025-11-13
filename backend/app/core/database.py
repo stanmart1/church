@@ -7,10 +7,14 @@ DATABASE_URL = settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncp
 engine = create_async_engine(
     DATABASE_URL, 
     echo=False, 
-    pool_size=20, 
-    max_overflow=0,
+    pool_size=10, 
+    max_overflow=2,
     pool_pre_ping=True,
-    pool_recycle=3600
+    pool_recycle=300,
+    connect_args={
+        "server_settings": {"application_name": "church_app"},
+        "command_timeout": 60,
+    }
 )
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 Base = declarative_base()
