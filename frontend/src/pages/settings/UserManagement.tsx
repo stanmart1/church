@@ -61,10 +61,11 @@ export default function UserManagement() {
         value: r.name, 
         label: r.name.charAt(0).toUpperCase() + r.name.slice(1) 
       })));
-      for (const role of data) {
-        const perms = await getRolePermissions(role.name);
-        setRolePermissionsMap(prev => ({ ...prev, [role.name]: perms.permissions || [] }));
-      }
+      const permMap: Record<string, any[]> = {};
+      data.forEach((role: any) => {
+        permMap[role.name] = role.permissions || [];
+      });
+      setRolePermissionsMap(permMap);
     } catch (error) {
       console.error('Error loading roles:', error);
     }
