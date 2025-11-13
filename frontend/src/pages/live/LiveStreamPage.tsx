@@ -299,17 +299,9 @@ export default function LiveStreamPage() {
                         </div>
                       )}
                     </div>
-                    {isLive && (
-                      <Suspense fallback={<LoadingSpinner />}>
-                        <ButtInstructions />
-                      </Suspense>
-                    )}
-                    {!isLive && (
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                        <i className="ri-information-line text-3xl text-gray-400 mb-2"></i>
-                        <p className="text-gray-600">Click "Start Stream Session" to begin. Then connect Butt to start broadcasting.</p>
-                      </div>
-                    )}
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <ButtInstructions />
+                    </Suspense>
                   </div>
                 </div>
 
