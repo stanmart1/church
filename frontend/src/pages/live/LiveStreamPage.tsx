@@ -265,9 +265,44 @@ export default function LiveStreamPage() {
                   </div>
                   
                   <div className="p-6 border-t border-gray-200">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <ButtInstructions />
-                    </Suspense>
+                    <div className="flex items-center justify-between mb-6">
+                      {!isLive ? (
+                        <button
+                          onClick={() => handleToggleLive(true)}
+                          disabled={loading}
+                          className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
+                        >
+                          <i className="ri-play-line mr-2 text-lg"></i>
+                          {loading ? 'Starting...' : 'Start Stream Session'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleToggleLive(false)}
+                          disabled={loading}
+                          className="flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 cursor-pointer"
+                        >
+                          <i className="ri-stop-line mr-2 text-lg"></i>
+                          {loading ? 'Ending...' : 'End Stream Session'}
+                        </button>
+                      )}
+                      {isLive && (
+                        <div className="flex items-center space-x-2 text-sm text-white bg-red-600 px-4 py-2 rounded-lg">
+                          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                          <span className="font-semibold">SESSION ACTIVE</span>
+                        </div>
+                      )}
+                    </div>
+                    {isLive && (
+                      <Suspense fallback={<LoadingSpinner />}>
+                        <ButtInstructions />
+                      </Suspense>
+                    )}
+                    {!isLive && (
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                        <i className="ri-information-line text-3xl text-gray-400 mb-2"></i>
+                        <p className="text-gray-600">Click "Start Stream Session" to begin. Then connect Butt to start broadcasting.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
