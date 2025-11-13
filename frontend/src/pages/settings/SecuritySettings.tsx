@@ -59,7 +59,7 @@ export default function SecuritySettings() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await updateBulkSettings(settings, 'security');
+      await updateBulkSettings(settings);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } finally {

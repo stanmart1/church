@@ -59,7 +59,7 @@ export default function NotificationSettings() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await updateBulkSettings(settings, 'notifications');
+      await updateBulkSettings(settings);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } finally {

@@ -12,12 +12,12 @@ const LiveStreamChat = lazy(() => import('./LiveStreamChat'));
 const LoadingSpinner = () => <div className="animate-pulse bg-gray-200 h-32 rounded-lg"></div>;
 
 export default function LiveStreamPage() {
-  const { getCurrentLivestream, createLivestream, endLivestream, getStreamHistory, updateLivestream } = useLivestream();
+  const { getCurrentLivestream, createLivestream, endLivestream, getStreamHistory } = useLivestream();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLive, setIsLive] = useState(false);
   const [viewerCount, setViewerCount] = useState(0);
   const [currentStreamId, setCurrentStreamId] = useState<string | null>(null);
-  const [audioLevel, setAudioLevel] = useState(0);
+  const [audioLevel] = useState(0);
   const [streamHistory, setStreamHistory] = useState<any[]>([]);
   const [historyPage, setHistoryPage] = useState(1);
   const [totalHistoryPages, setTotalHistoryPages] = useState(1);

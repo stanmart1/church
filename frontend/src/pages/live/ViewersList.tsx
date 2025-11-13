@@ -8,7 +8,7 @@ interface ViewersListProps {
   showChat?: boolean;
 }
 
-export default function ViewersList({ streamId, onToggleChat, showChat }: ViewersListProps) {
+export default function ViewersList({ streamId }: ViewersListProps) {
   const { getViewers, removeViewer, banViewer, unbanViewer, bulkViewerAction } = useLivestream();
   const [viewerList, setViewerList] = useState<any[]>([]);
   const [showActions, setShowActions] = useState<number | null>(null);

@@ -9,7 +9,7 @@ import { useRoles } from '@/hooks/useRoles';
 
 export default function UserManagement() {
   const { users, loading, fetchUsers, createUser, deleteUser, getUserStats } = useUsers();
-  const { getRoles, getPermissions, getRolePermissions, updateRole } = useRoles();
+  const { getRoles, getPermissions, updateRole } = useRoles();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('all');
   const [showAddUser, setShowAddUser] = useState(false);

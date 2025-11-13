@@ -42,7 +42,7 @@ export default function SystemSettings() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await updateBulkSettings(settings, 'system');
+      await updateBulkSettings(settings);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } finally {
