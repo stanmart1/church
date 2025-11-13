@@ -218,7 +218,7 @@ export default function LiveStreamPage() {
                         </div>
                         <button
                           onClick={() => setShowChat(!showChat)}
-                          className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm text-white p-3 rounded-lg hover:bg-black/70 transition-colors"
+                          className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm text-white p-3 rounded-lg hover:bg-black/70 transition-colors"
                           title={showChat ? 'Hide Chat' : 'Show Chat'}
                         >
                           <i className={`${showChat ? 'ri-chat-3-fill' : 'ri-chat-3-line'} text-xl`}></i>
