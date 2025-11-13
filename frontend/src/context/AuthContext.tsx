@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
-import { getToken, setToken as saveToken, removeToken } from '@/utils/auth';
+import { getToken, setToken as saveToken, removeToken, setRefreshToken } from '@/utils/auth';
 import { useAuth as useAuthHook } from '@/hooks/useAuth';
 
 interface AuthContextType {
@@ -33,13 +33,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     const data = await loginApi(email, password);
-    saveToken(data.token);
+    saveToken(data.access_token || data.token);
+    if (data.refresh_token) setRefreshToken(data.refresh_token);
     setUser(data.user);
   };
 
   const register = async (first_name: string, last_name: string, email: string, password: string, phone?: string) => {
     const data = await registerApi(first_name, last_name, email, password, phone);
-    saveToken(data.token);
+    saveToken(data.access_token || data.token);
+    if (data.refresh_token) setRefreshToken(data.refresh_token);
     setUser(data.user);
   };
 
