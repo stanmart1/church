@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     RESEND_FROM_EMAIL: str = "noreply@church.org"
     
     ICECAST_HOST: str = "localhost"
-    ICECAST_PORT: str = "8000"
+    ICECAST_PORT: str = "8001"
     ICECAST_SOURCE_PASSWORD: str = "churchsource123"
     ICECAST_ADMIN_USER: str = "admin"
     ICECAST_ADMIN_PASSWORD: str = "churchadmin123"

@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   icecast:
     image: moul/icecast
     container_name: church-icecast
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       ICECAST_SOURCE_PASSWORD: ${ICECAST_SOURCE_PASSWORD:-churchsource123}
       ICECAST_ADMIN_PASSWORD: ${ICECAST_ADMIN_PASSWORD:-churchadmin123}

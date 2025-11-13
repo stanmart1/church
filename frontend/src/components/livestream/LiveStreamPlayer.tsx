@@ -23,7 +23,7 @@ export default function LiveStreamPlayer({ isLive, title, description, streamId 
 
   useEffect(() => {
     if (isLive && streamId && audioRef.current) {
-      const icecastUrl = `http://localhost:8000/live`;
+      const icecastUrl = `http://localhost:8001/live`;
       audioRef.current.src = icecastUrl;
     }
   }, [isLive, streamId]);
