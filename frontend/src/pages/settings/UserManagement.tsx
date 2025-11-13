@@ -576,11 +576,11 @@ export default function UserManagement() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {editMode ? (
-                (Array.isArray(permissions) ? permissions : []).map((permission) => {
+                (Array.isArray(permissions) ? permissions : []).map((permission, index) => {
                   const isSelected = editingPermissions.includes(permission.name);
                   return (
                     <div
-                      key={permission.id}
+                      key={permission.id || index}
                       onClick={() => {
                         setEditingPermissions(prev =>
                           prev.includes(permission.name)
