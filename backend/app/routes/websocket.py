@@ -29,4 +29,3 @@ async def audio_stream_endpoint(websocket: WebSocket, stream_id: str):
         print(f"Audio stream error: {e}")
     finally:
         await icecast_service.stop_stream(stream_id)
-        await websocket.close()
