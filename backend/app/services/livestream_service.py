@@ -47,9 +47,16 @@ async def start_livestream(db: AsyncSession, livestream_id: str):
 
 async def stop_livestream(db: AsyncSession, livestream_id: str):
     from datetime import datetime
+    from sqlalchemy import delete
+    from app.models.stream import StreamViewer
+    
     livestream = await get_livestream(db, livestream_id)
     livestream.is_live = False
     livestream.end_time = datetime.utcnow()
+    
+    # Remove all viewers when stream ends
+    await db.execute(delete(StreamViewer).where(StreamViewer.livestream_id == livestream_id))
+    
     await db.commit()
     await db.refresh(livestream)
     return livestream
