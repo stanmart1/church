@@ -56,8 +56,9 @@ async def get_system_status(db: AsyncSession):
     try:
         uptime_result = await db.execute(text("SELECT EXTRACT(EPOCH FROM (now() - pg_postmaster_start_time())) as uptime"))
         uptime_seconds = uptime_result.scalar() or 0
-        uptime_hours = int(uptime_seconds / 3600)
-        uptime = f"{uptime_hours}h"
+        uptime_days = int(uptime_seconds / 86400)
+        uptime_hours = int((uptime_seconds % 86400) / 3600)
+        uptime = f"{uptime_days}d {uptime_hours}h"
     except:
         uptime = "N/A"
     
