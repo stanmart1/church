@@ -37,7 +37,7 @@ const request = async (endpoint: string, options: RequestInit = {}) => {
     },
   });
 
-  if (response.status === 401 && !endpoint.includes('/auth/')) {
+  if (response.status === 401 && !endpoint.includes('/auth/refresh') && !endpoint.includes('/auth/login')) {
     const refreshToken = getRefreshToken();
     
     if (!refreshToken) {
