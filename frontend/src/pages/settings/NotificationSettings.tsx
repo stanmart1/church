@@ -206,7 +206,7 @@ export default function NotificationSettings() {
                   <p className="text-sm text-gray-600">{notification.message}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">{Math.round(parseFloat(notification.time))} {notification.time.includes('minutes') ? 'min' : notification.time.includes('hours') ? 'hrs' : 'days'} ago</p>
+                  <p className="text-sm text-gray-500">{notification.time || 'N/A'}</p>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                     notification.status === 'sent' 
                       ? 'bg-green-100 text-green-800' 
