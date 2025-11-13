@@ -45,10 +45,13 @@ export default function UserManagement() {
   });
 
   useEffect(() => {
-    loadUsers();
-    loadStats();
     loadRoles();
     loadPermissions();
+  }, []);
+
+  useEffect(() => {
+    loadUsers();
+    loadStats();
   }, [searchTerm, selectedRole]);
 
   const loadRoles = async () => {
