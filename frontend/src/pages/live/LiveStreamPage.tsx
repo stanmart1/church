@@ -4,7 +4,7 @@ import DashboardHeader from '@/components/layout/DashboardHeader';
 import { useLivestream } from '@/hooks/useLivestream';
 import LivestreamWebSocket from '@/services/LivestreamWebSocket';
 
-const StreamControls = lazy(() => import('./StreamControls'));
+const ButtInstructions = lazy(() => import('./ButtInstructions'));
 const ViewersList = lazy(() => import('./ViewersList'));
 const StreamStats = lazy(() => import('./StreamStats'));
 const LiveStreamChat = lazy(() => import('./LiveStreamChat'));
@@ -276,9 +276,11 @@ export default function LiveStreamPage() {
 
                   </div>
                   
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <StreamControls isLive={isLive} onToggleLive={handleToggleLive} loading={loading} currentStreamId={currentStreamId} onAudioLevelChange={setAudioLevel} selectedInputDevice={selectedInputDevice} selectedOutputDevice={selectedOutputDevice} shouldResumeAudio={!!currentStreamId} />
-                  </Suspense>
+                  <div className="p-6 border-t border-gray-200">
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <ButtInstructions />
+                    </Suspense>
+                  </div>
                 </div>
 
                 <div className="bg-white shadow-sm rounded-lg p-6">

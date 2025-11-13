@@ -1,9 +1,7 @@
 import os
 import requests
-from typing import Optional
 import asyncio
-from datetime import datetime
-import httpx
+import xml.etree.ElementTree as ET
 
 class IcecastService:
     def __init__(self):
@@ -13,16 +11,20 @@ class IcecastService:
         self.admin_user = os.getenv("ICECAST_ADMIN_USER", "admin")
         self.admin_password = os.getenv("ICECAST_ADMIN_PASSWORD", "churchadmin123")
         self.mount_point = "/live"
-        self.active_streams = {}
-        self.stream_connections = {}
 
     def get_stream_url(self) -> str:
         """Get public Icecast stream URL"""
         return f"http://{self.icecast_host}:{self.icecast_port}{self.mount_point}"
 
-    def get_source_url(self) -> str:
-        """Get Icecast source URL for streaming"""
-        return f"http://source:{self.source_password}@{self.icecast_host}:{self.icecast_port}{self.mount_point}"
+    def get_butt_config(self) -> dict:
+        """Get Butt connection configuration"""
+        return {
+            "server": self.icecast_host,
+            "port": self.icecast_port,
+            "password": self.source_password,
+            "mount": self.mount_point,
+            "stream_url": self.get_stream_url()
+        }
 
     async def get_listener_count(self) -> int:
         """Get current listener count from Icecast stats"""
@@ -46,6 +48,27 @@ class IcecastService:
         except Exception as e:
             print(f"Error getting listener count: {e}")
             return 0
+
+    async def is_source_connected(self) -> bool:
+        """Check if a source is connected to the mount point"""
+        try:
+            url = f"http://{self.icecast_host}:{self.icecast_port}/admin/stats.xml"
+            response = await asyncio.to_thread(
+                requests.get,
+                url,
+                auth=(self.admin_user, self.admin_password),
+                timeout=5
+            )
+            if response.status_code == 200:
+                root = ET.fromstring(response.text)
+                for source in root.findall(".//source"):
+                    mount = source.get("mount")
+                    if mount == self.mount_point:
+                        return True
+            return False
+        except Exception as e:
+            print(f"Error checking source: {e}")
+            return False
 
     async def update_metadata(self, title: str, description: str = "") -> bool:
         """Update stream metadata"""
@@ -80,44 +103,5 @@ class IcecastService:
             return response.status_code == 200
         except Exception:
             return False
-
-    async def start_stream(self, stream_id: str):
-        """Start persistent connection to Icecast"""
-        if stream_id in self.stream_connections:
-            return
-        
-        url = f"http://{self.icecast_host}:{self.icecast_port}{self.mount_point}"
-        auth = ("source", self.source_password)
-        
-        client = httpx.AsyncClient(timeout=None)
-        self.stream_connections[stream_id] = {
-            "client": client,
-            "url": url,
-            "auth": auth,
-            "request": None
-        }
-
-    async def send_audio_chunk(self, stream_id: str, audio_data: bytes):
-        """Send audio chunk to Icecast"""
-        if stream_id not in self.stream_connections:
-            await self.start_stream(stream_id)
-        
-        conn = self.stream_connections[stream_id]
-        try:
-            await conn["client"].put(
-                conn["url"],
-                content=audio_data,
-                auth=conn["auth"],
-                headers={"Content-Type": "audio/mpeg"}
-            )
-        except Exception as e:
-            print(f"Error sending audio chunk: {e}")
-
-    async def stop_stream(self, stream_id: str):
-        """Stop persistent connection"""
-        if stream_id in self.stream_connections:
-            conn = self.stream_connections[stream_id]
-            await conn["client"].aclose()
-            del self.stream_connections[stream_id]
 
 icecast_service = IcecastService()

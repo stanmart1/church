@@ -83,6 +83,15 @@ async def get_source_url(livestream_id: str, db: AsyncSession = Depends(get_db),
 @router.get("/icecast/status")
 async def check_icecast_status(current_user: dict = Depends(get_current_user)):
     is_connected = await icecast_service.check_connection()
-    return {"connected": is_connected, "stream_url": icecast_service.get_stream_url()}
+    source_connected = await icecast_service.is_source_connected()
+    return {
+        "connected": is_connected,
+        "source_connected": source_connected,
+        "stream_url": icecast_service.get_stream_url()
+    }
+
+@router.get("/icecast/butt-config")
+async def get_butt_config(current_user: dict = Depends(get_current_user)):
+    return icecast_service.get_butt_config()
 
 
