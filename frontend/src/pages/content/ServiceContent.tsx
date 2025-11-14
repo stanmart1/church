@@ -6,8 +6,10 @@ export default function ServiceContent() {
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [showAddService, setShowAddService] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<any>(null);
   const [newService, setNewService] = useState({ day: 'Sunday', time: '', service: '', description: '' });
 
   useEffect(() => {
@@ -44,9 +46,16 @@ export default function ServiceContent() {
     loadServices();
   };
 
-  const handleDeleteService = async (id: number) => {
-    await deleteServiceTime(id);
-    loadServices();
+  const handleDeleteService = async () => {
+    if (!deleteConfirm) return;
+    setDeleting(true);
+    try {
+      await deleteServiceTime(deleteConfirm.id);
+      setDeleteConfirm(null);
+      loadServices();
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (loading) {
@@ -95,7 +104,7 @@ export default function ServiceContent() {
                 <i className="ri-edit-line text-lg"></i>
               </button>
               <button
-                onClick={() => handleDeleteService(service.id)}
+                onClick={() => setDeleteConfirm(service)}
                 className="text-red-600 hover:text-red-800 p-2"
               >
                 <i className="ri-delete-bin-line text-lg"></i>
@@ -255,6 +264,40 @@ export default function ServiceContent() {
                     {saving ? 'Adding...' : 'Add Service'}
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 py-6">
+            <div className="fixed inset-0 bg-gray-500 opacity-75" onClick={() => !deleting && setDeleteConfirm(null)}></div>
+            <div className="relative bg-white rounded-lg px-4 pt-5 pb-4 shadow-xl w-full max-w-md sm:p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
+                <i className="ri-error-warning-line text-red-600 text-2xl"></i>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">Delete Service Time</h3>
+              <p className="text-sm text-gray-600 text-center mb-6">
+                Are you sure you want to delete <span className="font-semibold">{deleteConfirm.service}</span>? This action cannot be undone.
+              </p>
+              <div className="flex justify-center space-x-3">
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  disabled={deleting}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteService}
+                  disabled={deleting}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 disabled:opacity-50 flex items-center"
+                >
+                  {deleting && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>}
+                  {deleting ? 'Deleting...' : 'Delete'}
+                </button>
               </div>
             </div>
           </div>

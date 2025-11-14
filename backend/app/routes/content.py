@@ -25,7 +25,7 @@ async def update_service_time(service_time_id: str, data: ServiceTimeUpdate, db:
     return await content_service.update_service_time(db, service_time_id, data)
 
 @router.delete("/service-times/{service_time_id}")
-async def delete_service_time(service_time_id: str, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def delete_service_time(service_time_id: int, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     await content_service.delete_service_time(db, service_time_id)
     return {"message": "Service time deleted"}
 

@@ -64,7 +64,7 @@ async def update_service_time(db: AsyncSession, service_time_id: str, data):
     await db.refresh(service_time)
     return service_time
 
-async def delete_service_time(db: AsyncSession, service_time_id: str):
+async def delete_service_time(db: AsyncSession, service_time_id: int):
     from app.models.service_time import ServiceTime
     from sqlalchemy import delete
     await db.execute(delete(ServiceTime).where(ServiceTime.id == service_time_id))
