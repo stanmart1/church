@@ -47,6 +47,10 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (step === 1) {
+      setStep(2);
+      return;
+    }
     setLoading(true);
     try {
       const data = new FormData();
@@ -321,8 +325,7 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
               </button>
               {step === 1 ? (
                 <button
-                  type="button"
-                  onClick={() => setStep(2)}
+                  type="submit"
                   className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-sm cursor-pointer whitespace-nowrap transition-all"
                 >
                   <span className="flex items-center">
