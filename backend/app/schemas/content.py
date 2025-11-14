@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime, time
+from datetime import datetime
 from uuid import UUID
 
 class ContentCreate(BaseModel):
@@ -21,18 +21,21 @@ class ContentResponse(BaseModel):
 
 class ServiceTimeCreate(BaseModel):
     day: str
-    time: time
+    time: str
+    service: Optional[str] = None
     description: Optional[str] = None
 
 class ServiceTimeUpdate(BaseModel):
     day: Optional[str] = None
-    time: Optional[time] = None
+    time: Optional[str] = None
+    service: Optional[str] = None
     description: Optional[str] = None
 
 class ServiceTimeResponse(BaseModel):
     id: UUID
     day: str
-    time: time
+    time: str
+    service: Optional[str]
     description: Optional[str]
     created_at: datetime
     
