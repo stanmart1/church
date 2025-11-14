@@ -16,6 +16,7 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
   const [loading, setLoading] = useState(false);
   const [loadingSeries, setLoadingSeries] = useState(false);
   const [step, setStep] = useState(1);
+  const [rawTitle, setRawTitle] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     speaker: '',
@@ -107,6 +108,30 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
     }));
   };
 
+  const parseTitle = () => {
+    const parts = rawTitle.split(' - ');
+    if (parts.length >= 3) {
+      const dateStr = parts[0].trim();
+      const title = parts.slice(1, -1).join(' - ').trim();
+      const speaker = parts[parts.length - 1].trim().replace(/^(Rev|Pastor|Dr|Evangelist)\s+/i, '');
+      
+      // Parse date (DD-MM-YY format)
+      const dateMatch = dateStr.match(/(\d{2})-(\d{2})-(\d{2})/);
+      let formattedDate = '';
+      if (dateMatch) {
+        const [, day, month, year] = dateMatch;
+        formattedDate = `20${year}-${month}-${day}`;
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        title,
+        speaker,
+        date: formattedDate
+      }));
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -145,6 +170,30 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
 
           <form id="upload-sermon-form" onSubmit={handleSubmit} className="space-y-5">
             {step === 1 && (<>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Quick Parse (Optional)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={rawTitle}
+                  onChange={(e) => setRawTitle(e.target.value)}
+                  className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="e.g., 02-11-25E - Obedience To Possession - Rev Samuel Adeniji"
+                />
+                <button
+                  type="button"
+                  onClick={parseTitle}
+                  disabled={!rawTitle}
+                  className="px-4 py-2.5 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  Parse
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Format: DATE - TITLE - SPEAKER NAME</p>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Sermon Title *
