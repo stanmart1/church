@@ -19,7 +19,7 @@ export default function ServicesPage() {
     const fetchServiceTimes = async () => {
       try {
         const response = await api.get('/content/service-times');
-        setServiceTimes(Array.isArray(response) ? response : []);
+        setServiceTimes(Array.isArray(response) ? response : response?.data || []);
       } catch (error) {
         console.error('Error fetching service times:', error);
       } finally {
