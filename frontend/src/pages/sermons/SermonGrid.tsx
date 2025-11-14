@@ -69,10 +69,12 @@ export default function SermonGrid({
       setPlayingSermon(null);
     } else {
       setPlayingSermon(sermon);
+      // Increment play count on backend and update UI
+      incrementPlayCount(sermon.id).then(() => loadSermons());
     }
   };
 
-  const { incrementDownloadCount } = useSermonPlayer();
+  const { incrementDownloadCount, incrementPlayCount } = useSermonPlayer();
 
   const downloadSermon = async (sermon: Sermon) => {
     try {
@@ -94,6 +96,8 @@ export default function SermonGrid({
       window.URL.revokeObjectURL(url);
 
       await incrementDownloadCount(sermon.id);
+      // Update download count in UI
+      loadSermons();
     } catch (error) {
       console.error('Error downloading sermon:', error);
       alert('Failed to download sermon');
