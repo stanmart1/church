@@ -24,7 +24,12 @@ export default function SermonGrid({
   sortBy, 
   viewMode 
 }: SermonGridProps) {
-  const { sermons, fetchSermons, deleteSermon } = useSermons();
+  const { sermons: initialSermons, fetchSermons, deleteSermon } = useSermons();
+  const [sermons, setSermons] = useState<Sermon[]>([]);
+
+  useEffect(() => {
+    setSermons(initialSermons);
+  }, [initialSermons]);
   const [loading, setLoading] = useState(true);
   const [playingSermon, setPlayingSermon] = useState<Sermon | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -69,8 +74,12 @@ export default function SermonGrid({
       setPlayingSermon(null);
     } else {
       setPlayingSermon(sermon);
-      // Increment play count on backend and update UI
-      incrementPlayCount(sermon.id).then(() => loadSermons());
+      // Update local state immediately
+      setSermons(prev => prev.map(s => 
+        s.id === sermon.id ? { ...s, plays: (s.plays || 0) + 1 } : s
+      ));
+      // Increment play count on backend
+      incrementPlayCount(sermon.id);
     }
   };
 
@@ -95,9 +104,11 @@ export default function SermonGrid({
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
+      // Update local state immediately
+      setSermons(prev => prev.map(s => 
+        s.id === sermon.id ? { ...s, downloads: (s.downloads || 0) + 1 } : s
+      ));
       await incrementDownloadCount(sermon.id);
-      // Update download count in UI
-      loadSermons();
     } catch (error) {
       console.error('Error downloading sermon:', error);
       alert('Failed to download sermon');
