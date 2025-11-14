@@ -35,9 +35,11 @@ export default function AboutContent() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await updateContent('leadership_text', leadershipText);
-      await updateContent('scripture_text', scriptureText);
-      await updateContent('history_text', historyText);
+      await Promise.all([
+        updateContent('leadership_text', leadershipText),
+        updateContent('scripture_text', scriptureText),
+        updateContent('history_text', historyText)
+      ]);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } finally {

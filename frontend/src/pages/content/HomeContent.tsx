@@ -35,9 +35,11 @@ export default function HomeContent() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await updateContent('hero_title', heroTitle);
-      await updateContent('hero_subtitle', heroSubtitle);
-      await updateContent('about_text', aboutText);
+      await Promise.all([
+        updateContent('hero_title', heroTitle),
+        updateContent('hero_subtitle', heroSubtitle),
+        updateContent('about_text', aboutText)
+      ]);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } finally {

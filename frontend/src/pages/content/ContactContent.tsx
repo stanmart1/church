@@ -42,13 +42,15 @@ export default function ContactContent() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await updateContent('address_line1', addressLine1);
-      await updateContent('address_line2', addressLine2);
-      await updateContent('address_line3', addressLine3);
-      await updateContent('address_line4', addressLine4);
-      await updateContent('contact_email', email);
-      await updateContent('service_time1', serviceTime1);
-      await updateContent('service_time2', serviceTime2);
+      await Promise.all([
+        updateContent('address_line1', addressLine1),
+        updateContent('address_line2', addressLine2),
+        updateContent('address_line3', addressLine3),
+        updateContent('address_line4', addressLine4),
+        updateContent('contact_email', email),
+        updateContent('service_time1', serviceTime1),
+        updateContent('service_time2', serviceTime2)
+      ]);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } finally {
