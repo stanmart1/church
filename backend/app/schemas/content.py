@@ -32,7 +32,7 @@ class ServiceTimeUpdate(BaseModel):
     description: Optional[str] = None
 
 class ServiceTimeResponse(BaseModel):
-    id: UUID
+    id: int
     day: str
     time: str
     service: Optional[str]
