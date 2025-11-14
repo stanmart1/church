@@ -131,11 +131,17 @@ export default function SermonGrid({
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4 flex-1">
                   <div className="relative">
-                    <LazyImage 
-                      className="w-16 h-16 rounded-lg object-top object-cover" 
-                      src={getMediaUrl(sermon.thumbnail_url) || `https://readdy.ai/api/search-image?query=modern%20church%20sermon%20artwork&width=200&height=200&seq=${sermon.id}&orientation=squarish`}
-                      alt={sermon.title}
-                    />
+                    {sermon.thumbnail_url ? (
+                      <LazyImage 
+                        className="w-16 h-16 rounded-lg object-top object-cover" 
+                        src={getMediaUrl(sermon.thumbnail_url)}
+                        alt={sermon.title}
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs p-2 text-center leading-tight">
+                        {sermon.title}
+                      </div>
+                    )}
                     <button
                       onClick={() => togglePlay(sermon)}
                       className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
@@ -247,11 +253,17 @@ export default function SermonGrid({
         {filteredSermons.map((sermon) => (
           <div key={sermon.id} className="bg-white hover:bg-gray-50 rounded-lg p-6 flex items-center gap-3 sm:gap-4 group transition-colors border border-gray-200">
             <div className="relative w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0">
-              <LazyImage 
-                className="w-full h-full object-cover rounded-md" 
-                src={getMediaUrl(sermon.thumbnail_url) || `https://readdy.ai/api/search-image?query=modern%20church%20sermon%20artwork&width=200&height=200&seq=${sermon.id}&orientation=squarish`}
-                alt={sermon.title}
-              />
+              {sermon.thumbnail_url ? (
+                <LazyImage 
+                  className="w-full h-full object-cover rounded-md" 
+                  src={getMediaUrl(sermon.thumbnail_url)}
+                  alt={sermon.title}
+                />
+              ) : (
+                <div className="w-full h-full rounded-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm p-3 text-center leading-tight">
+                  {sermon.title}
+                </div>
+              )}
               <button
                 onClick={() => togglePlay(sermon)}
                 className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-md"
