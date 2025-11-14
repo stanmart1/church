@@ -138,8 +138,8 @@ export default function SermonGrid({
                         alt={sermon.title}
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs p-2 text-center leading-tight">
-                        {sermon.title}
+                      <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
+                        {sermon.title.charAt(0).toUpperCase()}
                       </div>
                     )}
                     <button
@@ -260,8 +260,8 @@ export default function SermonGrid({
                   alt={sermon.title}
                 />
               ) : (
-                <div className="w-full h-full rounded-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm p-3 text-center leading-tight">
-                  {sermon.title}
+                <div className="w-full h-full rounded-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-3xl">
+                  {sermon.title.charAt(0).toUpperCase()}
                 </div>
               )}
               <button
