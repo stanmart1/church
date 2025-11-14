@@ -194,11 +194,17 @@ export default function AudioPlayer({ sermon, onClose }: AudioPlayerProps) {
         )}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-4 flex-1">
-            <img 
-              src={getMediaUrl(sermon.thumbnail_url) || `https://readdy.ai/api/search-image?query=sermon&width=100&height=100&seq=${sermon.id}`}
-              alt={sermon.title}
-              className="w-12 h-12 rounded object-cover"
-            />
+            {sermon.thumbnail_url ? (
+              <img 
+                src={getMediaUrl(sermon.thumbnail_url)}
+                alt={sermon.title}
+                className="w-12 h-12 rounded object-cover"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                {sermon.title.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
               <h4 className="text-sm font-semibold text-gray-900 truncate">{sermon.title}</h4>
               <p className="text-xs text-gray-500 truncate">{sermon.speaker}</p>
