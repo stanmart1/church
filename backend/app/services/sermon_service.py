@@ -45,8 +45,16 @@ async def get_sermon(db: AsyncSession, sermon_id: str):
         raise NotFoundException("Sermon not found")
     return sermon
 
-async def create_sermon(db: AsyncSession, data: SermonCreate):
-    sermon = Sermon(**data.model_dump())
+async def create_sermon(db: AsyncSession, data: SermonCreate, audio=None, thumbnail=None):
+    from app.services.storage_service import save_file
+    
+    sermon_data = data.model_dump()
+    if audio:
+        sermon_data['audio_url'] = await save_file(audio, 'sermons/audio')
+    if thumbnail:
+        sermon_data['thumbnail_url'] = await save_file(thumbnail, 'sermons/thumbnails')
+    
+    sermon = Sermon(**sermon_data)
     db.add(sermon)
     
     if data.series_id:
