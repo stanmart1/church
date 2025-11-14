@@ -9,7 +9,11 @@ export const usePublicContent = () => {
     const fetchContent = async () => {
       try {
         const data = await api.get('/content');
-        setContent(data);
+        const contentMap = Array.isArray(data) ? data.reduce((acc: any, item: any) => {
+          acc[item.key] = item.value;
+          return acc;
+        }, {}) : data;
+        setContent(contentMap);
       } catch (error) {
         console.error('Error fetching content:', error);
       } finally {
