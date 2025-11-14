@@ -21,7 +21,7 @@ async def create_service_time(data: ServiceTimeCreate, db: AsyncSession = Depend
     return await content_service.create_service_time(db, data)
 
 @router.put("/service-times/{service_time_id}", response_model=ServiceTimeResponse)
-async def update_service_time(service_time_id: str, data: ServiceTimeUpdate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def update_service_time(service_time_id: int, data: ServiceTimeUpdate, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     return await content_service.update_service_time(db, service_time_id, data)
 
 @router.delete("/service-times/{service_time_id}")

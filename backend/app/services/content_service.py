@@ -52,7 +52,7 @@ async def create_service_time(db: AsyncSession, data):
     await db.refresh(service_time)
     return service_time
 
-async def update_service_time(db: AsyncSession, service_time_id: str, data):
+async def update_service_time(db: AsyncSession, service_time_id: int, data):
     from app.models.service_time import ServiceTime
     result = await db.execute(select(ServiceTime).where(ServiceTime.id == service_time_id))
     service_time = result.scalar_one_or_none()

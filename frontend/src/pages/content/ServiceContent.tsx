@@ -6,6 +6,7 @@ export default function ServiceContent() {
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showAddService, setShowAddService] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
@@ -41,9 +42,14 @@ export default function ServiceContent() {
   };
 
   const handleUpdateService = async () => {
-    await updateServiceTime(editingService.id, editingService);
-    setEditingService(null);
-    loadServices();
+    setUpdating(true);
+    try {
+      await updateServiceTime(editingService.id, editingService);
+      setEditingService(null);
+      loadServices();
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const handleDeleteService = async () => {
@@ -173,15 +179,18 @@ export default function ServiceContent() {
                 <div className="flex justify-end space-x-3 pt-4 border-t">
                   <button
                     onClick={() => setEditingService(null)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    disabled={updating}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleUpdateService}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
+                    disabled={updating}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center"
                   >
-                    Update Service
+                    {updating && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>}
+                    {updating ? 'Updating...' : 'Update Service'}
                   </button>
                 </div>
               </div>
