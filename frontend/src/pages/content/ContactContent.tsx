@@ -21,13 +21,17 @@ export default function ContactContent() {
   const loadContent = async () => {
     try {
       const data = await getContent();
-      setAddressLine1(data.address_line1 || '');
-      setAddressLine2(data.address_line2 || '');
-      setAddressLine3(data.address_line3 || '');
-      setAddressLine4(data.address_line4 || '');
-      setEmail(data.contact_email || '');
-      setServiceTime1(data.service_time1 || '');
-      setServiceTime2(data.service_time2 || '');
+      const contentMap = Array.isArray(data) ? data.reduce((acc: any, item: any) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {}) : data;
+      setAddressLine1(contentMap.address_line1 || '');
+      setAddressLine2(contentMap.address_line2 || '');
+      setAddressLine3(contentMap.address_line3 || '');
+      setAddressLine4(contentMap.address_line4 || '');
+      setEmail(contentMap.contact_email || '');
+      setServiceTime1(contentMap.service_time1 || '');
+      setServiceTime2(contentMap.service_time2 || '');
     } catch (error) {
       console.error('Error loading content:', error);
     } finally {

@@ -18,9 +18,13 @@ export default function AboutContent() {
   const loadContent = async () => {
     try {
       const data = await getContent();
-      setLeadershipText(data.leadership_text || '');
-      setScriptureText(data.scripture_text || '"But in the days of the voice of the seventh angel, when he shall begin to sound, the mystery of God should be finished, as he hath declared to His servants the prophets" - Revelation 10:7 King James Version');
-      setHistoryText(data.history_text || '');
+      const contentMap = Array.isArray(data) ? data.reduce((acc: any, item: any) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {}) : data;
+      setLeadershipText(contentMap.leadership_text || '');
+      setScriptureText(contentMap.scripture_text || '"But in the days of the voice of the seventh angel, when he shall begin to sound, the mystery of God should be finished, as he hath declared to His servants the prophets" - Revelation 10:7 King James Version');
+      setHistoryText(contentMap.history_text || '');
     } catch (error) {
       console.error('Error loading content:', error);
     } finally {

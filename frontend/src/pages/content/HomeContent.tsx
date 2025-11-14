@@ -18,9 +18,13 @@ export default function HomeContent() {
   const loadContent = async () => {
     try {
       const data = await getContent();
-      setHeroTitle(data.hero_title || 'Welcome to Bibleway Fellowship Tabernacle');
-      setHeroSubtitle(data.hero_subtitle || 'Join us in worship, fellowship, and service as we grow together in faith and love.');
-      setAboutText(data.about_text || '');
+      const contentMap = Array.isArray(data) ? data.reduce((acc: any, item: any) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {}) : data;
+      setHeroTitle(contentMap.hero_title || 'Welcome to Bibleway Fellowship Tabernacle');
+      setHeroSubtitle(contentMap.hero_subtitle || 'Join us in worship, fellowship, and service as we grow together in faith and love.');
+      setAboutText(contentMap.about_text || '');
     } catch (error) {
       console.error('Error loading content:', error);
     } finally {

@@ -23,8 +23,13 @@ async def create_content(db: AsyncSession, data: ContentCreate):
     return content
 
 async def update_content(db: AsyncSession, key: str, data: ContentUpdate):
-    content = await get_content_by_key(db, key)
-    content.value = data.value
+    result = await db.execute(select(Content).where(Content.key == key))
+    content = result.scalar_one_or_none()
+    if not content:
+        content = Content(key=key, value=data.value)
+        db.add(content)
+    else:
+        content.value = data.value
     await db.commit()
     await db.refresh(content)
     return content
