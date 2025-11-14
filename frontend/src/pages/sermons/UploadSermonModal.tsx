@@ -97,6 +97,13 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
       ...prev,
       [field]: file
     }));
+    
+    // Auto-parse from audio filename
+    if (field === 'audioFile' && file) {
+      const filename = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
+      setRawTitle(filename);
+      parseFilename(filename);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -108,8 +115,8 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
     }));
   };
 
-  const parseTitle = () => {
-    const parts = rawTitle.split(' - ');
+  const parseFilename = (filename: string) => {
+    const parts = filename.split(' - ');
     if (parts.length >= 3) {
       const dateStr = parts[0].trim();
       const title = parts.slice(1, -1).join(' - ').trim();
@@ -132,6 +139,10 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
     }
   };
 
+  const parseTitle = () => {
+    parseFilename(rawTitle);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -145,7 +156,7 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-xl font-bold text-gray-900">Upload New Sermon</h3>
-              <p className="text-sm text-gray-500 mt-1">Step {step} of 2: {step === 1 ? 'Sermon Details' : 'File Uploads'}</p>
+              <p className="text-sm text-gray-500 mt-1">Step {step} of 2: {step === 1 ? 'File Uploads' : 'Sermon Details'}</p>
             </div>
             <button
               type="button"
@@ -172,28 +183,57 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
             {step === 1 && (<>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Quick Parse (Optional)
+                Audio File *
               </label>
-              <div className="flex gap-2">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 transition-colors bg-gray-50">
                 <input
-                  type="text"
-                  value={rawTitle}
-                  onChange={(e) => setRawTitle(e.target.value)}
-                  className="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="e.g., 02-11-25E - Obedience To Possession - Rev Samuel Adeniji"
+                  type="file"
+                  accept="audio/*"
+                  onChange={(e) => handleFileChange(e, 'audioFile')}
+                  className="hidden"
+                  id="audio-upload"
+                  required
                 />
-                <button
-                  type="button"
-                  onClick={parseTitle}
-                  disabled={!rawTitle}
-                  className="px-4 py-2.5 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                >
-                  Parse
-                </button>
+                <label htmlFor="audio-upload" className="cursor-pointer">
+                  <div className="text-center">
+                    <i className="ri-upload-cloud-line text-gray-400 text-3xl mb-2"></i>
+                    <p className="text-sm text-gray-600">
+                      {formData.audioFile ? formData.audioFile.name : 'Click to upload audio file'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">MP3, WAV files supported (max 500MB)</p>
+                    <p className="text-xs text-blue-600 mt-2 font-medium">Filename format: DATE - TITLE - SPEAKER NAME</p>
+                  </div>
+                </label>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Format: DATE - TITLE - SPEAKER NAME</p>
             </div>
 
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Thumbnail Image
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 transition-colors bg-gray-50">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, 'thumbnail')}
+                  className="hidden"
+                  id="thumbnail-upload"
+                />
+                <label htmlFor="thumbnail-upload" className="cursor-pointer">
+                  <div className="text-center">
+                    <i className="ri-image-line text-gray-400 text-3xl mb-2"></i>
+                    <p className="text-sm text-gray-600">
+                      {formData.thumbnail ? formData.thumbnail.name : 'Click to upload thumbnail'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">JPG, PNG files supported (recommended: 400x300px)</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+            </>
+            )}
+
+            {step === 2 && (<>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Sermon Title *
@@ -312,58 +352,6 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
             </>
             )}
 
-            {step === 2 && (
-            <>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Audio File *
-              </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 transition-colors bg-gray-50">
-                <input
-                  type="file"
-                  accept="audio/*"
-                  onChange={(e) => handleFileChange(e, 'audioFile')}
-                  className="hidden"
-                  id="audio-upload"
-                />
-                <label htmlFor="audio-upload" className="cursor-pointer">
-                  <div className="text-center">
-                    <i className="ri-upload-cloud-line text-gray-400 text-3xl mb-2"></i>
-                    <p className="text-sm text-gray-600">
-                      {formData.audioFile ? formData.audioFile.name : 'Click to upload audio file'}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">MP3, WAV files supported (max 500MB)</p>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Thumbnail Image
-              </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 transition-colors bg-gray-50">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileChange(e, 'thumbnail')}
-                  className="hidden"
-                  id="thumbnail-upload"
-                />
-                <label htmlFor="thumbnail-upload" className="cursor-pointer">
-                  <div className="text-center">
-                    <i className="ri-image-line text-gray-400 text-3xl mb-2"></i>
-                    <p className="text-sm text-gray-600">
-                      {formData.thumbnail ? formData.thumbnail.name : 'Click to upload thumbnail'}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">JPG, PNG files supported (recommended: 400x300px)</p>
-                  </div>
-                </label>
-              </div>
-            </div>
-            </>
-            )}
-
             <div className="flex justify-between pt-6 border-t border-gray-200">
               <button
                 type="button"
@@ -375,7 +363,8 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
               {step === 1 ? (
                 <button
                   type="submit"
-                  className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-sm cursor-pointer whitespace-nowrap transition-all"
+                  disabled={!formData.audioFile}
+                  className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 border border-transparent rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-sm cursor-pointer whitespace-nowrap transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="flex items-center">
                     Next Step
