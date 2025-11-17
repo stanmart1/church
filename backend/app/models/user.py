@@ -31,7 +31,7 @@ class User(Base):
         CheckConstraint("membership_status IN ('active', 'inactive', 'visitor')", name='users_membership_status_check'),
         CheckConstraint("status IN ('active', 'inactive')", name='users_status_check'),
         CheckConstraint("gender IN ('male', 'female')", name='users_gender_check'),
-        CheckConstraint("marital_status IN ('single', 'married', 'divorced', 'widowed')", name='users_marital_status_check'),
+        CheckConstraint("marital_status IN ('single', 'married', 'widowed')", name='users_marital_status_check'),
     )
     
     announcements = relationship("Announcement", back_populates="creator")

@@ -20,7 +20,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: AddMember
     address: '',
     birthday: '',
     gender: 'male' as 'male' | 'female',
-    maritalStatus: 'single' as 'single' | 'married' | 'divorced' | 'widowed',
+    maritalStatus: 'single' as 'single' | 'married' | 'widowed',
     password: ''
   });
 

@@ -9,7 +9,7 @@ export interface Member {
   role: 'member' | 'leader' | 'volunteer';
   birthday?: string;
   gender?: 'male' | 'female';
-  maritalStatus?: 'single' | 'married' | 'divorced' | 'widowed';
+  maritalStatus?: 'single' | 'married' | 'widowed';
 }
 
 export interface Attendance {
