@@ -8,8 +8,9 @@ RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv
-RUN pip install --upgrade pip && pip install uv
+# Install uv with retry logic
+RUN pip install --upgrade pip --no-cache-dir && \
+    pip install uv --no-cache-dir
 
 # Copy uv files and install dependencies
 COPY pyproject.toml uv.lock ./
