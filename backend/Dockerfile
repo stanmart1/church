@@ -18,9 +18,6 @@ RUN uv sync --frozen
 # Copy application code
 COPY . .
 
-# Create uploads directory
-RUN mkdir -p uploads
-
 # Expose port
 EXPOSE 8000
 
