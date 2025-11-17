@@ -16,7 +16,6 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
   const [loading, setLoading] = useState(false);
   const [loadingSeries, setLoadingSeries] = useState(false);
   const [step, setStep] = useState(1);
-  const [rawTitle, setRawTitle] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     speaker: '',
@@ -101,7 +100,6 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
     // Auto-parse from audio filename
     if (field === 'audioFile' && file) {
       const filename = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
-      setRawTitle(filename);
       parseFilename(filename);
     }
   };
