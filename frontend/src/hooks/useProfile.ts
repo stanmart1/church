@@ -13,9 +13,7 @@ export const useProfile = () => {
   const uploadPhoto = (userId: string | number, file: File) => {
     const formData = new FormData();
     formData.append('photo', file);
-    return api.post(`/profile/${userId}/photo`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    return api.post(`/profile/${userId}/photo`, formData);
   };
 
   const getNotificationPreferences = (userId: string | number) =>

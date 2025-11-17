@@ -149,7 +149,7 @@ export default function SermonGrid({
                     {sermon.thumbnail_url ? (
                       <LazyImage 
                         className="w-16 h-16 rounded-lg object-top object-cover" 
-                        src={getMediaUrl(sermon.thumbnail_url)}
+                        src={getMediaUrl(sermon.thumbnail_url) || ''}
                         alt={sermon.title}
                       />
                     ) : (
@@ -271,7 +271,7 @@ export default function SermonGrid({
               {sermon.thumbnail_url ? (
                 <LazyImage 
                   className="w-full h-full object-cover rounded-md" 
-                  src={getMediaUrl(sermon.thumbnail_url)}
+                  src={getMediaUrl(sermon.thumbnail_url) || ''}
                   alt={sermon.title}
                 />
               ) : (

@@ -139,9 +139,7 @@ export default function UploadSermonModal({ isOpen, onClose, onSuccess }: Upload
     }
   };
 
-  const parseTitle = () => {
-    parseFilename(rawTitle);
-  };
+
 
   if (!isOpen) return null;
 

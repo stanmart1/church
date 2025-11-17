@@ -196,7 +196,7 @@ export default function AudioPlayer({ sermon, onClose }: AudioPlayerProps) {
           <div className="flex items-center space-x-4 flex-1">
             {sermon.thumbnail_url ? (
               <img 
-                src={getMediaUrl(sermon.thumbnail_url)}
+                src={getMediaUrl(sermon.thumbnail_url) || ''}
                 alt={sermon.title}
                 className="w-12 h-12 rounded object-cover"
               />
